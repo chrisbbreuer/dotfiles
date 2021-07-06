@@ -31,13 +31,8 @@ pecl install imagick memcached redis swoole
 # Install Laravel Valet
 $HOME/.composer/vendor/bin/valet install
 
-# Create a Sites directory
-mkdir $HOME/Sites
-
-# Create sites subdirectories
-mkdir $HOME/Sites/blade-ui-kit
-mkdir $HOME/Sites/eventsauce
-mkdir $HOME/Sites/laravel
+# Create a code directory
+mkdir $HOME/Code
 
 # Clone Github repositories
 ./clone.sh

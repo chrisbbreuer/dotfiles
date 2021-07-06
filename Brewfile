@@ -25,7 +25,7 @@ brew 'trash' # Manage the Trash bin
 brew 'tree' # List directories in a tree structure
 brew 'zlib' # Needed for Memcached
 
-# Spatie Medialibrary
+# Meema
 brew 'jpegoptim'
 brew 'optipng'
 brew 'pngquant'
@@ -70,9 +70,9 @@ cask 'ray'
 cask 'screenflow'
 cask 'signal'
 cask 'slack'
-cask 'sublime-text'
+# cask 'sublime-text'
 cask 'tableplus'
-cask 'telegram-desktop'
+# cask 'telegram-desktop'
 cask 'the-unarchiver'
 cask 'tinkerwell'
 cask 'transmission'
