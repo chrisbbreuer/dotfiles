@@ -42,7 +42,7 @@ rm -rf $HOME/.zshrc
 ln -s $HOME/.dotfiles/.zshrc $HOME/.zshrc
 
 # Symlink the starship config file
-# ln -s $HOME/.dotfiles/starship.toml $HOME/.config/starship.toml
+ln -s $HOME/.dotfiles/starship.toml $HOME/.config/starship.toml
 
 # Symlink the Mackup config file to the home directory
 ln -s $HOME/.dotfiles/.mackup.cfg $HOME/.mackup.cfg
