@@ -73,13 +73,11 @@ cask 'slack'
 cask 'tableplus'
 cask 'the-unarchiver'
 cask 'tinkerwell'
-cask 'transmission'
 cask 'transmit'
 cask 'tunnelbear'
 cask 'tuple'
 cask 'visual-studio-code'
 cask 'vlc'
-cask 'zoom'
 
 # Quicklook
 cask 'qlmarkdown'

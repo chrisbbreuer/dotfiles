@@ -943,7 +943,6 @@ for app in "Activity Monitor" \
     "Spectacle" \
     "SystemUIServer" \
     "Terminal" \
-    "Transmission" \
     "Tweetbot" \
     "Twitter" \
     "iCal"; do
