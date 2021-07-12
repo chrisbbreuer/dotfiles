@@ -34,6 +34,9 @@ $HOME/.composer/vendor/bin/valet install
 # Create a code directory
 mkdir $HOME/Code
 
+# Create a .config directory required for Starshipi
+mkdir $HOME/.config
+
 # Clone Github repositories
 ./clone.sh
 
