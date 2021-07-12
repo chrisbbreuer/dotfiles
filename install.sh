@@ -50,5 +50,8 @@ ln -s $HOME/.dotfiles/starship.toml $HOME/.config/starship.toml
 # Symlink the Mackup config file to the home directory
 ln -s $HOME/.dotfiles/.mackup.cfg $HOME/.mackup.cfg
 
+# install zsh-autosuggestions
+git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
+
 # Set macOS preferences - we will run this last because this will reload the shell
 source .macos

@@ -24,7 +24,6 @@ brew 'svn'
 brew 'trash' # Manage the Trash bin
 brew 'tree' # List directories in a tree structure
 brew 'zlib' # Needed for Memcached
-brew 'zsh-autosuggestions'
 
 # Meema
 brew 'jpegoptim'
