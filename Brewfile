@@ -46,7 +46,7 @@ brew 'nginx'
 brew 'node'
 brew 'redis'
 brew 'yarn'
-# brew 'starship'
+brew 'starship'
 
 # Apps
 cask '1password'
