@@ -85,7 +85,9 @@ cask 'qlmarkdown'
 cask 'quicklook-json'
 
 # Fonts
+cask 'font-inter'
 cask 'font-lato'
+cask 'font-meslo-lg-nerd-font'
 cask 'font-open-sans'
 cask 'font-roboto'
 cask 'font-source-code-pro-for-powerline'
