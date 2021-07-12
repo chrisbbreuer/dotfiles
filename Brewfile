@@ -98,7 +98,6 @@ cask 'font-source-serif-pro'
 # Mac App Store
 mas 'AdBlock', id: 1402042596
 mas 'Bear', id: 1091189122
-mas 'Byword', id: 420212497
 mas 'Giphy Capture', id: 668208984
 mas 'Grammarly for Safari', id: 1462114288
 mas 'hide.me VPN', id: 953040671
@@ -110,8 +109,7 @@ mas 'Magnet', id: 441258766
 mas 'Numbers', id: 409203825
 mas 'Pages', id: 409201541
 mas 'Spark', id: 1176895641
-mas 'Speedtest', id: 1153157709
-mas 'Things', id: 904280696
+# mas 'Things', id: 904280696
 mas 'Tweetbot', id: 1384080005
 mas 'Wappalyzer', id: 1520333300
 mas 'WhatsApp', id: 1147396723
