@@ -23,7 +23,7 @@ alias seed="php artisan db:seed"
 
 # PHP
 alias cfresh="rm -rf vendor/ composer.lock && composer i"
-alias composer="php -d memory_limit=-1 /usr/local/bin/composer"
+alias composer="php -d memory_limit=-1 /opt/homebrew/bin/composer"
 alias switch-php80="brew unlink php@7.4 && brew link --overwrite --force php"
 alias switch-php74="brew unlink php && brew link --overwrite --force php@7.4"
 
