@@ -9,7 +9,7 @@ alias shrug="echo '¯\_(ツ)_/¯' | pbcopy"
 alias c="clear"
 
 # Directories
-alias dotfiles="cd $DOTFILES"
+alias dotfiles="cd $DOTFILES; code"
 alias library="cd $HOME/Library"
 alias web="cd $HOME/Code"
 alias meema-api="web && cd meema-api/"
@@ -54,7 +54,7 @@ alias push="git push"
 alias resolve="git add . && git commit --no-edit"
 alias stash="git stash -u"
 alias unstage="git restore --staged ."
-alias wip="commit wip"
+alias wip="commit wip; push"
 
 # Show/hide hidden files in Finder
 alias show="defaults write com.apple.finder AppleShowAllFiles -bool true && killall Finder"
