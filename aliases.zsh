@@ -20,6 +20,7 @@ alias meema.io="web && cd meema.io/"
 alias art="php artisan"
 alias fresh="php artisan migrate:fresh --seed"
 alias seed="php artisan db:seed"
+alias sail='[ -f sail ] && bash sail || bash vendor/bin/sail'
 
 # PHP
 alias cfresh="rm -rf vendor/ composer.lock && composer i"
