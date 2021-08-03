@@ -19,7 +19,9 @@ alias meema.io="web && cd meema.io/"
 # Laravel
 alias art="php artisan"
 alias fresh="php artisan migrate:fresh --seed"
+alias sfresh="sail artisan migrate:fresh --seed"
 alias seed="php artisan db:seed"
+alias sseed="sail artisan db:seed"
 alias sail='[ -f sail ] && bash sail || bash vendor/bin/sail'
 
 # PHP
