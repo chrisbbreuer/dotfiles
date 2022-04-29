@@ -7,6 +7,10 @@ export DOTFILES=$HOME/.dotfiles
 # Path to your oh-my-zsh installation.
 export ZSH=$HOME/.oh-my-zsh
 
+export VOLTA_HOME=$HOME/.volta
+
+export PATH="$VOLTA_HOME/bin:/Users/chrisbreuer/.local/share/solana/install/active_release/bin:$PATH"
+
 # Enable completions
 autoload -Uz compinit && compinit
 

@@ -8,6 +8,7 @@ alias pstorm='open -a /Applications/PhpStorm.app "`pwd`"'
 alias code='open -a "/Applications/Visual Studio Code.app" "`pwd`"'
 alias shrug="echo '¯\_(ツ)_/¯' | pbcopy"
 alias c="clear"
+alias python=python3
 
 # Directories
 alias dotfiles="cd $DOTFILES; code"
@@ -28,13 +29,22 @@ alias sail='[ -f sail ] && bash sail || bash vendor/bin/sail'
 # PHP
 alias cfresh="rm -rf vendor/ composer.lock && composer i"
 alias composer="php -d memory_limit=-1 /opt/homebrew/bin/composer"
-alias switch-php80="brew unlink php@7.4 && brew link --overwrite --force php"
+alias switch-php81="brew unlink php@8.1 && brew link --overwrite --force php"
+alias switch-php80="brew unlink php && brew link --overwrite --force php@8.0"
 alias switch-php74="brew unlink php && brew link --overwrite --force php@7.4"
 
 # JS
 alias nfresh="rm -rf node_modules/ package-lock.json && npm install"
 alias yfresh="rm -rf node_modules/ yarn.lock && yarn"
-alias watch="npm run watch"
+alias pf="rm -rf node_modules/ pnpm-lock.yaml && pnpm i"
+alias pi="pnpm i"
+alias pid="pnpm i -D"
+alias pc="pnpm run commit"
+alias pr="pnpm run release"
+alias pd="pnpm dev"
+alias pt="pnpm typecheck"
+alias pb="pnpm build"
+alias p="pnpm "
 
 # Docker
 alias docker-composer="docker-compose"
