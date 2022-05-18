@@ -25,6 +25,8 @@ alias sfresh="sail artisan migrate:fresh --seed"
 alias seed="php artisan db:seed"
 alias sseed="sail artisan db:seed"
 alias sail='[ -f sail ] && bash sail || bash vendor/bin/sail'
+alias tinker="php artisan tinker"
+alias serve="php artisan serve"
 
 # PHP
 alias cfresh="rm -rf vendor/ composer.lock && composer i"
