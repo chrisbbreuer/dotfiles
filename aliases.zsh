@@ -12,7 +12,7 @@ alias c="clear"
 alias python=python3
 
 # Directories
-alias dotfiles="cd $DOTFILES; code"
+alias dotfiles="code $DOTFILES"
 alias library="cd $HOME/Library"
 alias web="cd $HOME/Code"
 alias meema-api="web && cd meema-api/"
