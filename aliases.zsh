@@ -8,7 +8,8 @@ alias ll='exa --long --header --group --git --modified --color-scale --group-dir
 alias pstorm='open -a /Applications/PhpStorm.app "`pwd`"'
 alias code='open -a "/Applications/Visual Studio Code.app" "`pwd`"'
 alias shrug="echo '¯\_(ツ)_/¯' | pbcopy"
-alias c="clear"
+# alias c="clear"
+alias c="reset"
 alias python=python3
 
 # Directories
@@ -21,13 +22,13 @@ alias meema.io="web && cd meema.io/"
 
 # Laravel
 alias art="php artisan"
-alias fresh="php artisan migrate:fresh --seed"
+alias pfresh="php artisan migrate:fresh --seed"
 alias sfresh="sail artisan migrate:fresh --seed"
-alias seed="php artisan db:seed"
+alias pseed="php artisan db:seed"
 alias sseed="sail artisan db:seed"
 alias sail='[ -f sail ] && bash sail || bash vendor/bin/sail'
-alias tinker="php artisan tinker"
-alias serve="php artisan serve"
+alias ptinker="php artisan tinker"
+alias pserve="php artisan serve"
 
 # PHP
 alias cfresh="rm -rf vendor/ composer.lock && composer i"
@@ -40,7 +41,7 @@ alias switch-php74="brew unlink php && brew link --overwrite --force php@7.4"
 alias nfresh="rm -rf node_modules/ package-lock.json && npm install"
 alias yfresh="rm -rf node_modules/ yarn.lock && yarn"
 alias pf="rm -rf node_modules/ pnpm-lock.yaml && pnpm i"
-alias pfa="rimraf packages/**/node_modules && rimraf examples/**/node_modules && rm -rf node_modules/ pnpm-lock.yaml && pnpm i -r"
+alias pfa="rimraf packages/**/node_modules && rimraf examples/**/node_modules node_modules/ pnpm-lock.yaml && pnpm i -r"
 alias pi="pnpm i"
 alias pia="pnpm i -r"
 alias pid="pnpm i -D"
@@ -49,6 +50,9 @@ alias pr="pnpm run release"
 alias pd="pnpm dev"
 alias pt="pnpm typecheck"
 alias pb="pnpm build"
+alias pp="pnpm play"
+alias pl="eslint"
+alias plf="eslint . --fix"
 alias p="pnpm "
 
 # Docker
