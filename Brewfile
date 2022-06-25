@@ -41,7 +41,7 @@ brew 'imagemagick'
 brew 'meilisearch'
 brew 'mysql'
 brew 'nginx'
-brew 'node'
+brew 'fnm'
 brew 'redis'
 brew 'starship'
 
@@ -77,7 +77,6 @@ cask 'vlc'
 
 # Quicklook
 cask 'qlmarkdown'
-cask 'quicklook-json'
 
 # Fonts
 cask 'font-inter'
