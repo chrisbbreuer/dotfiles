@@ -27,11 +27,11 @@ brew 'stripe/stripe-mock/stripe-mock'
 brew 'svn' # Needed to install fonts
 
 # Meema
-brew 'jpegoptim'
-brew 'optipng'
-brew 'pngquant'
-brew 'svgo'
-brew 'gifsicle'
+# brew 'jpegoptim'
+# brew 'optipng'
+# brew 'pngquant'
+# brew 'svgo'
+# brew 'gifsicle'
 
 # Development
 brew 'php'
@@ -73,9 +73,6 @@ cask 'tuple'
 cask 'visual-studio-code'
 cask 'vlc'
 
-# Quicklook
-cask 'qlmarkdown'
-
 # Fonts
 cask 'font-inter'
 cask 'font-lato'
@@ -92,7 +89,7 @@ mas 'AdBlock', id: 1402042596
 mas 'Bear', id: 1091189122
 mas 'Grammarly for Safari', id: 1462114288
 mas 'Honey', id: 1472777122
-mas 'HP Smart', id: 1474276998
+# mas 'HP Smart', id: 1474276998
 mas 'Keynote', id: 409183694
 mas 'Magnet', id: 441258766
 mas 'Numbers', id: 409203825
