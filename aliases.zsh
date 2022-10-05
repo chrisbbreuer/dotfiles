@@ -21,7 +21,6 @@ alias meema-manager="web && cd meema-media-manager/"
 alias meema.io="web && cd meema.io/"
 
 # Laravel
-alias art="php artisan"
 alias pfresh="php artisan migrate:fresh --seed"
 alias sfresh="sail artisan migrate:fresh --seed"
 alias pseed="php artisan db:seed"
@@ -38,21 +37,24 @@ alias switch-php80="brew unlink php && brew link --overwrite --force php@8.0"
 alias switch-php74="brew unlink php && brew link --overwrite --force php@7.4"
 
 # JS
-alias nfresh="rm -rf node_modules/ package-lock.json && npm install"
-alias yfresh="rm -rf node_modules/ yarn.lock && yarn"
+alias nf="rm -rf node_modules/ package-lock.json && npm install"
+alias yf="rm -rf node_modules/ yarn.lock && yarn"
 alias pf="rm -rf node_modules/ pnpm-lock.yaml && pnpm i"
 alias pfa="rimraf packages/**/node_modules && rimraf examples/**/node_modules node_modules/ pnpm-lock.yaml && pnpm i -r"
 alias pi="pnpm i"
-alias pia="pnpm i -r"
 alias pid="pnpm i -D"
+
+# Stacks
+alias p="pnpm"
+alias pa="pnpm artisan"
+alias art="pnpm artisan"
 alias pc="pnpm artisan commit"
 alias pr="pnpm artisan release"
 alias pd="pnpm artisan dev"
+alias pdc="pnpm artisan dev:components"
 alias pb="pnpm artisan build"
 alias pl="pnpm artisan lint"
-alias pl="pnpm artisan lint:fix"
-alias p="pnpm "
-alias pa="pnpm artisan"
+alias plf="pnpm artisan lint:fix"
 
 # Git
 alias gst="git status"
