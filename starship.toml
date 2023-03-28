@@ -1,42 +1,23 @@
-[aws]
-disabled = true
-
-[directory]
-truncate_to_repo = false
-
-[gcloud]
-disabled = true
-
-[nodejs]
-format = "using [$symbol$version]($style) "
-
-[package]
-format = "[$symbol$version]($style) "
-
-[git_branch]
-symbol = "🌱 "
-truncation_length = 4
-truncation_symbol = ""
-
-[git_commit]
-commit_hash_length = 4
-tag_symbol = "🔖 "
-
-[git_state]
-format = '[\($state( $progress_current of $progress_total)\)]($style) '
-cherry_pick = "[🍒 PICKING](bold red)"
-
-[git_status]
-conflicted = "🏳"
-ahead = "🏎💨"
-behind = "😰"
-diverged = "😵"
-untracked = "🤷‍"
-stashed = "📦"
-modified = "📝"
-staged = '[++\($count\)](green)'
-renamed = "👅"
-deleted = "🗑"
+format = """\
+[](bg:#030B16 fg:#7DF9AA)\
+[󰀵 ](bg:#7DF9AA fg:#090c0c)\
+[](fg:#7DF9AA bg:#1C3A5E)\
+$time\
+$battery\
+[](fg:#1C3A5E bg:#3B76F0)\
+$directory\
+[](fg:#3B76F0 bg:#FCF392)\
+$git_branch\
+$git_commit\
+$git_status\
+$git_state\
+$git_metrics\
+[](fg:#FCF392)\
+$nodejs\
+$php\
+$package\
+$character\
+"""
 
 [battery]
 full_symbol = "🔋 "
@@ -45,13 +26,74 @@ full_symbol = "🔋 "
 threshold = 10
 style = "bold red"
 
-[[battery.display]]  # "bold yellow" style and 💦 symbol when capacity is between 10% and 30%
-threshold = 20
-style = "bold yellow"
-discharging_symbol = "💀 "
+[nodejs]
+format = " using [ $symbol$version]($style) "
 
 [php]
 format = "via [$symbol$version]($style) "
 symbol = "🐘 "
 style = "147 bold"
 disabled = false
+
+[package]
+format = "[ $symbol$version]($style) "
+
+[git_commit]
+commit_hash_length = 4
+tag_symbol = "🔖 "
+
+[git_status]
+format = '[$all_status]($style)'
+style = "fg:#FCF392 bg:#FCF392"
+conflicted = "🏳"
+ahead = "🏎💨"
+behind = "😰"
+diverged = "😵"
+untracked = "🤷‍"
+stashed = "📦"
+modified = " 📝"
+staged = '[ ++\($count\)](bold green bg:#FCF392)'
+renamed = "👅"
+deleted = "🗑"
+
+[git_state]
+format = '[\($state( $progress_current of $progress_total)\)]($style) '
+cherry_pick = "[🍒 PICKING](bold red)"
+
+[directory]
+format = "[ ﱮ $path ]($style)"
+style = "fg:#E4E4E4 bg:#3B76F0"
+
+[git_branch]
+format = '[ $symbol$branch(:$remote_branch) ]($style)'
+symbol = "  "
+style = "fg:#1C3A5E bg:#FCF392"
+
+[git_metrics]
+format = "([+$added]($added_style))[]($added_style)"
+added_style = "fg:#1C3A5E bg:#FCF392"
+deleted_style = "fg:bright-red bg:235"
+disabled = false
+
+[hg_branch]
+format = "[ $symbol$branch ]($style)"
+symbol = " "
+
+[cmd_duration]
+format = "[  $duration ]($style)"
+style = "fg:bright-white bg:18"
+
+[character]
+success_symbol = '[ ➜](bold green) '
+error_symbol = '[ ✗](#E84D44) '
+
+[time]
+disabled = false
+time_format = "%R" # Hour:Minute Format
+style = "bg:#1d2230"
+format = '[[ 󱑍 $time ](bg:#1C3A5E fg:#8DFBD2)]($style)'
+
+[[battery.display]]  # "bold yellow" style and 💦 symbol when capacity is between 10% and 30%
+threshold = 20
+style = "bold yellow"
+discharging_symbol = "💀 "
