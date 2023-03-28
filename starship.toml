@@ -33,8 +33,8 @@ behind = "😰"
 diverged = "😵"
 untracked = "🤷‍"
 stashed = "📦"
-modified = "📝"
-staged = '[++\($count\)](green)'
+modified = " 📝"
+staged = '[ ++\($count\)](green)'
 renamed = "👅"
 deleted = "🗑"
 
