@@ -106,4 +106,3 @@ export LANG=en_US.UTF-8
 
 # the init script
 eval "$(starship init zsh)"
-eval "$(fnm env --use-on-cd)"
