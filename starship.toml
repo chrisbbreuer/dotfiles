@@ -35,7 +35,7 @@ untracked = "🤷‍"
 stashed = "📦"
 modified = " 📝"
 staged = '[ ++\($count\)](green)'
-renamed = "👅"
+renamed = " 👅"
 deleted = "🗑"
 
 [battery]
