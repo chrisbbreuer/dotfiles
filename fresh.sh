@@ -17,14 +17,14 @@ fi
 
 # Removes .zshrc from $HOME (if it exists) and symlinks the .zshrc file from the .dotfiles
 rm -rf $HOME/.zshrc
-ln -s $HOME/.dotfiles/.zshrc $HOME/.zshrc
+ln -s .zshrc $HOME/.zshrc
 
 # Update Homebrew recipes
 brew update
 
 # Install all our dependencies with bundle (See Brewfile)
 brew tap homebrew/bundle
-brew bundle --file $DOTFILES/Brewfile
+brew bundle --file ./Brewfile
 
 # Set default MySQL root password and auth type
 mysql -u root -e "ALTER USER root@localhost IDENTIFIED WITH mysql_native_password BY 'password'; FLUSH PRIVILEGES;"
@@ -45,16 +45,16 @@ mkdir $HOME/Code
 mkdir $HOME/.config
 
 # Clone Github repositories
-$DOTFILES/clone.sh
+./clone.sh
 
 # Symlink the starship config file
 ln -s $HOME/.dotfiles/starship.toml $HOME/.config/starship.toml
 
 # Symlink the Mackup config file to the home directory
-ln -s $DOTFILES/.mackup.cfg $HOME/.mackup.cfg
+ln -s .mackup.cfg $HOME/.mackup.cfg
 
 # install zsh-autosuggestions
 git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
 
 # Set macOS preferences - we will run this last because this will reload the shell
-source $DOTFILES/.macos
+source ./.macos

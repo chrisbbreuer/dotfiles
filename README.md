@@ -8,6 +8,8 @@ This repository serves as my way to help me setup and maintain my Mac. It takes 
 📺 - [Watch the screencast on Laracasts](https://laracasts.com/series/guest-spotlight/episodes/1)
 💡 - [Learn how to build your own dotfiles](https://github.com/driesvints/dotfiles#your-own-dotfiles)
 
+If you find this repo useful, [consider sponsoring me](https://github.com/sponsors/driesvints) (a little bit)! ❤️ 
+
 ## A Fresh macOS Setup
 
 These instructions are for setting up new Mac devices. Instead, if you want to get started building your own dotfiles, you can [find those instructions below](#your-own-dotfiles).
@@ -36,13 +38,13 @@ After backing up your old Mac you may now follow these install instructions to s
 3. Clone this repo to `~/.dotfiles` with:
 
     ```zsh
-    git clone git@github.com:driesvints/dotfiles.git ~/.dotfiles
+    git clone --recursive git@github.com:driesvints/dotfiles.git ~/.dotfiles
     ```
 
 4. Run the installation with:
 
     ```zsh
-    ~/.dotfiles/fresh.sh
+    cd ~/.dotfiles && ./fresh.sh
     ```
 
 5. After mackup is synced with your cloud storage, restore preferences by running `mackup restore`
@@ -64,7 +66,7 @@ If you want to start with your own dotfiles from this setup, it's pretty easy to
 
 Go through the [`.macos`](./.macos) file and adjust the settings to your liking. You can find much more settings at [the original script by Mathias Bynens](https://github.com/mathiasbynens/dotfiles/blob/master/.macos) and [Kevin Suttle's macOS Defaults project](https://github.com/kevinSuttle/MacOS-Defaults).
 
-Check out the [`Brewfile`](./Brewfile) file and adjust the apps you want to install for your machine. Use [their search page](https://caskroom.github.io/search) to check if the app you want to install is available.
+Check out the [`Brewfile`](./Brewfile) file and adjust the apps you want to install for your machine. Use [their search page](https://formulae.brew.sh/cask/) to check if the app you want to install is available.
 
 Check out the [`aliases.zsh`](./aliases.zsh) file and add your own aliases. If you need to tweak your `$PATH` check out the [`path.zsh`](./path.zsh) file. These files get loaded in because the `$ZSH_CUSTOM` setting points to the `.dotfiles` directory. You can adjust the [`.zshrc`](./.zshrc) file to your liking to tweak your Oh My Zsh setup. More info about how to customize Oh My Zsh can be found [here](https://github.com/robbyrussell/oh-my-zsh/wiki/Customization).
 

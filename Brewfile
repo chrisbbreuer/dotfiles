@@ -68,7 +68,6 @@ cask 'tableplus'
 cask 'the-unarchiver'
 cask 'tinkerwell'
 cask 'transmit'
-cask 'tuple'
 cask 'visual-studio-code'
 cask 'vlc'
 cask 'warp'
@@ -86,13 +85,10 @@ cask 'font-source-serif-pro'
 
 # Mac App Store
 mas 'AdBlock', id: 1402042596
-mas 'Bear', id: 1091189122
 mas 'Grammarly for Safari', id: 1462114288
 mas 'Honey', id: 1472777122
 mas 'Keynote', id: 409183694
-mas 'Magnet', id: 441258766
 mas 'Numbers', id: 409203825
 mas 'Pages', id: 409201541
-mas 'Spark', id: 1176895641
 mas 'Wappalyzer', id: 1520333300
 mas 'WhatsApp', id: 1147396723
