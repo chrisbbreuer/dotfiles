@@ -35,13 +35,10 @@ brew 'svn' # Needed to install fonts
 # Development
 brew 'php'
 brew 'php@8.1'
-brew 'php@8.0'
 brew 'composer'
 brew 'imagemagick'
-brew 'meilisearch'
 brew 'mysql'
 brew 'nginx'
-brew 'fnm'
 brew 'redis'
 brew 'starship'
 
