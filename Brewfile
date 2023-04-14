@@ -34,6 +34,7 @@ brew 'svn' # Needed to install fonts
 
 # Development
 brew 'php'
+brew 'php@8.1'
 brew 'php@8.0'
 brew 'composer'
 brew 'imagemagick'
@@ -46,14 +47,13 @@ brew 'starship'
 
 # Apps
 cask '1password'
-cask 'brave'
+cask 'arc'
 cask 'dbngin'
 cask 'discord'
 cask 'docker'
 cask 'figma'
 cask 'firefox'
 cask 'github'
-cask 'google-chrome'
 cask 'helo'
 cask 'imageoptim'
 cask 'insomnia'
@@ -87,8 +87,5 @@ cask 'font-source-serif-pro'
 mas 'AdBlock', id: 1402042596
 mas 'Grammarly for Safari', id: 1462114288
 mas 'Honey', id: 1472777122
-mas 'Keynote', id: 409183694
-mas 'Numbers', id: 409203825
-mas 'Pages', id: 409201541
 mas 'Wappalyzer', id: 1520333300
 mas 'WhatsApp', id: 1147396723

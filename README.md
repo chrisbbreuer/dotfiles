@@ -2,9 +2,9 @@
 
 ## Main differences to Dries's Dotfiles
 
-- includes iTerm2 & a Material Theme config for it
-- uses Starship for a pretty console
-- Stacks ready
+- Includes Material-themed iTerm2
+- Pretty console via Starship
+- Stacks-ready
 
 ## Introduction
 
@@ -40,7 +40,7 @@ After backing up your old Mac you may now follow these install instructions to s
 2. [Generate a new public and private SSH key](https://docs.github.com/en/github/authenticating-to-github/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent) by running:
 
    ```zsh
-   curl https://raw.githubusercontent.com/driesvints/dotfiles/HEAD/ssh.sh | sh -s "<your-email-address>"
+   curl https://raw.githubusercontent.com/chrisbbreuer/dotfiles/HEAD/ssh.sh | sh -s "<your-email-address>"
    ```
 
 3. Clone this repo to `~/.dotfiles` with:
