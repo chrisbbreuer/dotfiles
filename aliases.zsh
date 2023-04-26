@@ -16,9 +16,6 @@ alias python=python3
 alias dotfiles="code $DOTFILES"
 alias library="cd $HOME/Library"
 alias web="cd $HOME/Code"
-alias meema-api="web && cd meema-api/"
-alias meema-manager="web && cd meema-media-manager/"
-alias meema.io="web && cd meema.io/"
 
 # Laravel
 alias pfresh="php artisan migrate:fresh --seed"
@@ -44,15 +41,7 @@ alias pi="pnpm i"
 alias pid="pnpm i -D"
 
 # Stacks
-alias runtime="cd $HOME/Code/stacks/.stacks/core/runtime"
 alias p="pnpm"
-alias buddy="pnpm buddy"
-alias bud="pnpm buddy"
-alias stacks="pnpm buddy"
-alias stx="pnpm buddy"
-alias pa="pnpm buddy"
-alias art="pnpm buddy"
-alias artisan="pnpm buddy"
 alias pc="pnpm buddy commit"
 alias pr="pnpm buddy release"
 alias pd="pnpm buddy dev"
