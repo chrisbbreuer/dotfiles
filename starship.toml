@@ -7,9 +7,6 @@ truncate_to_repo = false
 [gcloud]
 disabled = true
 
-[nodejs]
-format = "using [$symbol$version]($style) "
-
 [package]
 format = "[$symbol$version]($style) "
 
@@ -23,35 +20,40 @@ commit_hash_length = 4
 tag_symbol = "🔖 "
 
 [git_state]
-format = '[\($state( $progress_current of $progress_total)\)]($style) '
 cherry_pick = "[🍒 PICKING](bold red)"
+format = '[\($state( $progress_current of $progress_total)\)]($style) '
 
 [git_status]
-conflicted = "🏳"
 ahead = "🏎💨"
 behind = "😰"
-diverged = "😵"
-untracked = "🤷‍"
-stashed = "📦"
-modified = " 📝"
-staged = '[ ++\($count\)](green)'
-renamed = " 👅"
+conflicted = "🏳"
 deleted = "🗑"
+diverged = "🌿"
+modified = "📝"
+renamed = "👅"
+staged = '[ ++\($count\)](green)'
+stashed = "📦"
+untracked = "🤷‍"
 
 [battery]
-full_symbol = "🔋 "
+full_symbol = "🔋"
 
-[[battery.display]]  # "bold red" style and discharging_symbol when capacity is between 0% and 10%
-threshold = 10
+[[battery.display]] # "bold red" style and discharging_symbol when capacity is between 0% and 10%
 style = "bold red"
+threshold = 10
 
-[[battery.display]]  # "bold yellow" style and 💦 symbol when capacity is between 10% and 30%
-threshold = 20
+[[battery.display]] # "bold yellow" style and 💦 symbol when capacity is between 10% and 30%
+discharging_symbol = "💀"
 style = "bold yellow"
-discharging_symbol = "💀 "
+threshold = 20
 
 [php]
 format = "via [$symbol$version]($style) "
-symbol = "🐘 "
 style = "147 bold"
-disabled = false
+symbol = "🐘"
+
+[bun]
+symbol = "🐰 "
+
+[nodejs]
+format = ""
