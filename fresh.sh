@@ -29,19 +29,11 @@ brew bundle --file ./Brewfile
 # Set default MySQL root password and auth type
 mysql -u root -e "ALTER USER root@localhost IDENTIFIED WITH mysql_native_password BY 'password'; FLUSH PRIVILEGES;"
 
-# Install PHP extensions with PECL
-pecl install imagick redis swoole
-
-# Install global Composer packages
-/usr/local/bin/composer global require laravel/installer laravel/valet beyondcode/expose spatie/global-ray spatie/visit
-
-# Install Laravel Valet
-$HOME/.composer/vendor/bin/valet install
-
-# Create a code directory
+# Create a projects directories
 mkdir $HOME/Code
+mkdir $HOME/Herd
 
-# Create a .config directory required for Starshipi
+# Create a .config directory required for Starship
 mkdir $HOME/.config
 
 # Clone Github repositories
@@ -51,7 +43,7 @@ mkdir $HOME/.config
 ln -s $HOME/.dotfiles/starship.toml $HOME/.config/starship.toml
 
 # Symlink the Mackup config file to the home directory
-ln -s .mackup.cfg $HOME/.mackup.cfg
+ln -s ./.mackup.cfg $HOME/.mackup.cfg
 
 # install zsh-autosuggestions
 git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
