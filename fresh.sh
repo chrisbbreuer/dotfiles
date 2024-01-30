@@ -8,9 +8,9 @@ if test ! $(which omz); then
 fi
 
 # Check for Homebrew and install if we don't have it
-if test ! $(which tea); then
-  sh <(curl tea.xyz)
-  eval "$(tea integrate)"
+if test ! $(which pkgx); then
+  curl -fsS https://pkgx.sh | sh
+  eval "$(pkgx integrate)"
 fi
 
 if test ! $(which brew); then

@@ -8,8 +8,8 @@ alias ll='exa --long --header --group --git --modified --color-scale --group-dir
 alias pstorm='open -a /Applications/PhpStorm.app "`pwd`"'
 alias code='open -a "/Applications/Visual Studio Code.app" "`pwd`"'
 alias shrug="echo '¯\_(ツ)_/¯' | pbcopy"
-# alias c="clear"
-alias c="reset"
+alias c="clear"
+# alias c="reset"
 alias python=python3
 
 # Directories
@@ -34,17 +34,15 @@ alias switch-php80="brew unlink php && brew link --overwrite --force php@8.0"
 alias switch-php74="brew unlink php && brew link --overwrite --force php@7.4"
 
 # JS
-alias nf="rm -rf node_modules/ package-lock.json && npm install"
-alias yf="rm -rf node_modules/ yarn.lock && yarn"
-alias pf="pnpm run fresh"
-alias pi="pnpm i"
 alias bi="bun i"
 alias bii="bun i -y"
+alias pf="pnpm run fresh"
+alias pi="pnpm i"
 alias pu="pnpm up"
 alias pid="pnpm i -D"
 alias bid="bun i -D"
 
-# Stacks
+# JS/TS Stacks
 alias b="bun"
 alias bc="bun commit"
 alias br="bun release"
@@ -54,15 +52,7 @@ alias bb="bun run build"
 alias bl="bun lint"
 alias blf="bun lint:fix"
 alias bf="buddy fresh"
-
-alias p="pnpm"
-alias pc="pnpm commit"
-alias pr="pnpm release"
-alias pd="pnpm dev"
-alias pdc="pnpm buddy dev:components"
-alias pb="pnpm build"
-alias pl="pnpm lint"
-alias plf="pnpm lint:fix"
+alias s="cd $HOME/Code/stacks/storage/framework"
 
 # Git
 alias gst="git status"

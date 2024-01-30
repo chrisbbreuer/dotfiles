@@ -107,4 +107,5 @@ export LANG=en_US.UTF-8
 # the init script
 eval "$(starship init zsh)"
 
-source <(tea --shellcode)  #docs.tea.xyz/shellcode
+# docs.pkgx.sh/shellcode
+source <(pkgx --shellcode)
