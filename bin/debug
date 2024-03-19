@@ -5,8 +5,8 @@ echo "Setting up test project..."
 REPOSITORY=$1
 DIRECTORY="$HOME/Code/$2"
 
-if [[ $PWD != "$HOME/Sites" ]]; then
-    echo "You can only setup projects in the $HOME/Sites directory."
+if [[ $PWD != "$HOME/Code" ]]; then
+    echo "You can only setup projects in the $HOME/Code directory."
 
     exit 1
 fi
@@ -21,15 +21,12 @@ git clone $REPOSITORY $DIRECTORY
 cd $DIRECTORY
 
 cp .env.example .env
-sed -i '' 's/DB_DATABASE=.*/DB_DATABASE=laravel/' .env
+sed -i '' 's/DB_DATABASE=.*/DB_DATABASE=stacks/' .env
 sed -i '' 's/DB_USERNAME=.*/DB_USERNAME=root/' .env
 sed -i '' 's/DB_PASSWORD=.*/DB_PASSWORD=/' .env
 
-composer install
-php artisan key:generate
-php artisan migrate:fresh --seed
+bun install
+./buddy key:generate
+# ./buddy migrate:fresh --seed
 
-npm install
-npm run build
-
-open -a /Applications/PhpStorm.app "`pwd`"
+open -a /Applications/WebStorm.app "`pwd`"
