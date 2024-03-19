@@ -7,4 +7,4 @@ dependencies:
   ffmpeg.org: ^5.1.2
   cli.github.com: ^2.35.0
   freedesktop.org/pkg-config: ^0.29.2
-  starship.rs: ^1.16.0
+  starship.rs: ^1.17.0

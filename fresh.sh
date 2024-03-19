@@ -36,7 +36,6 @@ mysql -u root -e "ALTER USER root@localhost IDENTIFIED WITH mysql_native_passwor
 
 # Create a projects directories
 mkdir $HOME/Code
-mkdir $HOME/Herd
 
 # Create a .config directory required for Starship
 mkdir $HOME/.config
@@ -50,8 +49,13 @@ ln -s $HOME/.dotfiles/starship.toml $HOME/.config/starship.toml
 # Symlink the Mackup config file to the home directory
 ln -s $HOME/.dotfiles/.mackup.cfg $HOME/.mackup.cfg
 
-# install zsh-autosuggestions
-git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
+# # Symlink the pkgx config file to the parent home directory
+# ln -s $HOME/.dotfiles/pkgx.yaml $HOME/../pkgx.yaml
+
+# # install pkgx system deps
+# cd $HOME/..
+# eval "$(dev)"
+# cd $HOME
 
 # Set macOS preferences - we will run this last because this will reload the shell
 source ./.macos

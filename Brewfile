@@ -7,6 +7,7 @@ tap 'nicoverbruggen/homebrew-cask'
 # Binaries
 brew 'git'
 brew 'mas' # Mac App Store manager
+brew 'starship'
 brew 'svn' # Needed to install fonts
 
 # Meema
@@ -27,6 +28,7 @@ cask 'github'
 cask 'imageoptim'
 cask 'insomnia'
 cask 'iterm2'
+cask 'jetbrains-toolbox'
 cask 'mediainfo'
 cask 'muzzle'
 cask 'raycast'

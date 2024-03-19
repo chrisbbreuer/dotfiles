@@ -73,7 +73,7 @@ ZSH_CUSTOM=$DOTFILES
 # Custom plugins may be added to $ZSH_CUSTOM/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(git artisan zsh-autosuggestions)
+plugins=(git)
 
 source $ZSH/oh-my-zsh.sh
 
@@ -104,8 +104,11 @@ export LANG=en_US.UTF-8
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 
-# the init script
-eval "$(starship init zsh)"
-
 # docs.pkgx.sh/shellcode
 source <(pkgx --shellcode)
+
+# the init script, needs to after pkgx
+eval "$(starship init zsh)"
+
+rm -rf $HOME/.zshrc
+ln -s $HOME/.dotfiles/.zshrc $HOME/.zshrc
