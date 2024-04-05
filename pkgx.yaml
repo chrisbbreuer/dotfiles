@@ -1,9 +1,9 @@
 dependencies:
-  bun.sh: ^1.0.33
+  bun.sh: ^1.1.0
   aws.amazon.com/cli: ^2.13.7
   gnu.org/bash: ^5.2.15
   gnu.org/grep: ^3.11.0
-  crates.io/exa: ^0.10.1
+  crates.io/eza: ^0.18.9
   ffmpeg.org: ^5.1.2
   cli.github.com: ^2.35.0
   freedesktop.org/pkg-config: ^0.29.2
