@@ -73,7 +73,7 @@ ZSH_CUSTOM=$DOTFILES
 # Custom plugins may be added to $ZSH_CUSTOM/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(git)
+plugins=(git zsh-autosuggestions zsh-syntax-highlighting fast-syntax-highlighting)
 
 source $ZSH/oh-my-zsh.sh
 
@@ -112,3 +112,10 @@ eval "$(starship init zsh)"
 
 rm -rf $HOME/.zshrc
 ln -s $HOME/.dotfiles/.zshrc $HOME/.zshrc
+
+# bun completions
+[ -s "/Users/chrisbreuer/.bun/_bun" ] && source "/Users/chrisbreuer/.bun/_bun"
+
+# bun
+export BUN_INSTALL="$HOME/.bun"
+export PATH="$BUN_INSTALL/bin:$PATH"
