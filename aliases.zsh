@@ -90,4 +90,5 @@ alias emptytrash="sudo rm -rfv /Volumes/*/.Trashes; sudo rm -rfv ~/.Trash; sudo 
 # Enable aliases to be sudo’ed
 alias sudo='sudo '
 
-alias bisnow='~/Sites/bisnow'
+# https://x.com/seldo/status/1823126087423099192
+# alias ports=sudo lsof -iTCP -sTCP:LISTEN -n -P | awk 'NR>1 {print $9, $1, $2}' | sed 's/.*://' | while read port process pid; do echo "Port $port: $(ps -p $pid -o command= | sed 's/^-//') (PID: $pid)"; done | sort -n
