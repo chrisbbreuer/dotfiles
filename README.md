@@ -2,7 +2,7 @@
 
 ## Main differences to Dries's dotfiles
 
-- Includes Material-themed iTerm2
+- Includes Ghostty
 - Pretty console via Starship
 - Stacks-ready
 
