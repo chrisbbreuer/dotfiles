@@ -104,10 +104,6 @@ export LANG=en_US.UTF-8
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 
-# docs.pkgx.sh/shellcode
-source <(pkgx --shellcode)
-
-# the init script, needs to after pkgx
 eval "$(starship init zsh)"
 
 rm -rf $HOME/.zshrc
@@ -119,3 +115,8 @@ ln -s $HOME/.dotfiles/.zshrc $HOME/.zshrc
 # bun
 export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
+
+# Added by Windsurf
+export PATH="/Users/chrisbreuer/.codeium/windsurf/bin:$PATH"
+
+eval "$(pkgx --quiet dev --shellcode)"  # https://github.com/pkgxdev/dev
