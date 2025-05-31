@@ -29,4 +29,4 @@ bun install
 ./buddy key:generate
 # ./buddy migrate:fresh --seed
 
-open -a /Applications/WebStorm.app "`pwd`"
+open -a /Applications/Cursor.app "`pwd`"

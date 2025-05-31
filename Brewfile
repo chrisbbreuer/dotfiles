@@ -6,6 +6,7 @@ tap 'homebrew/bundle'
 # Binaries
 brew 'git'
 brew 'mas' # Mac App Store manager
+brew 'pearcleaner'
 brew 'starship'
 brew 'svn' # Needed to install fonts
 

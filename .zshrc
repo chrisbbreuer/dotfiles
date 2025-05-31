@@ -119,4 +119,4 @@ export PATH="$BUN_INSTALL/bin:$PATH"
 # Added by Windsurf
 export PATH="/Users/chrisbreuer/.codeium/windsurf/bin:$PATH"
 
-eval "$(pkgx --quiet dev --shellcode)"  # https://github.com/pkgxdev/dev
+eval "$(launchpad dev:shellcode)"  # https://github.com/stacksjs/launchpad
