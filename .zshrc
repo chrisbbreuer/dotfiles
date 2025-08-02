@@ -104,7 +104,10 @@ export LANG=en_US.UTF-8
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 
-eval "$(starship init zsh)"
+# Initialize starship if available
+if command -v starship >/dev/null 2>&1; then
+  eval "$(starship init zsh)"
+fi
 
 rm -rf $HOME/.zshrc
 ln -s $HOME/.dotfiles/.zshrc $HOME/.zshrc
@@ -119,4 +122,8 @@ export PATH="$BUN_INSTALL/bin:$PATH"
 # Added by Windsurf
 export PATH="/Users/chrisbreuer/.codeium/windsurf/bin:$PATH"
 
-eval "$(launchpad dev:shellcode)"  # https://github.com/stacksjs/launchpad
+export PATH="/usr/local/sbin:$PATH"
+export PATH="/Users/chrisbreuer/.local/bin:$PATH"
+
+# Added by launchpad
+eval "$(/usr/local/bin/launchpad dev:shellcode)"  # https://github.com/stacksjs/launchpad
