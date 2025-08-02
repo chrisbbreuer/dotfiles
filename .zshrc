@@ -104,13 +104,9 @@ export LANG=en_US.UTF-8
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 
-# Initialize starship if available
-if command -v starship >/dev/null 2>&1; then
-  eval "$(starship init zsh)"
-fi
+# Starship initialization moved to end (after Launchpad loads)
 
-rm -rf $HOME/.zshrc
-ln -s $HOME/.dotfiles/.zshrc $HOME/.zshrc
+# Note: .zshrc should be symlinked from ~/.dotfiles/.zshrc
 
 # bun completions
 [ -s "/Users/chrisbreuer/.bun/_bun" ] && source "/Users/chrisbreuer/.bun/_bun"
@@ -127,3 +123,8 @@ export PATH="/Users/chrisbreuer/.local/bin:$PATH"
 
 # Added by launchpad
 eval "$(/usr/local/bin/launchpad dev:shellcode)"  # https://github.com/stacksjs/launchpad
+
+# Initialize starship AFTER Launchpad loads (so starship is available in PATH)
+if command -v starship >/dev/null 2>&1; then
+  eval "$(starship init zsh)"
+fi
