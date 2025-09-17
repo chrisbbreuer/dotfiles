@@ -124,7 +124,7 @@ export PATH="/Users/chrisbreuer/.local/bin:$PATH"
 # Added by launchpad
 eval "$(/usr/local/bin/launchpad dev:shellcode)"  # https://github.com/stacksjs/launchpad
 
-# Initialize starship AFTER Launchpad loads (so starship is available in PATH)
-if command -v starship >/dev/null 2>&1; then
-  eval "$(starship init zsh)"
-fi
+eval "$(starship init zsh)"
+
+# Added by launchpad
+eval "$(launchpad dev:shellcode)"  # https://github.com/stacksjs/launchpad
