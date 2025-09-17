@@ -104,8 +104,6 @@ export LANG=en_US.UTF-8
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 
-# Starship initialization moved to end (after Launchpad loads)
-
 # Note: .zshrc should be symlinked from ~/.dotfiles/.zshrc
 
 # bun completions
@@ -120,9 +118,6 @@ export PATH="/Users/chrisbreuer/.codeium/windsurf/bin:$PATH"
 
 export PATH="/usr/local/sbin:$PATH"
 export PATH="/Users/chrisbreuer/.local/bin:$PATH"
-
-# Added by launchpad
-eval "$(/usr/local/bin/launchpad dev:shellcode)"  # https://github.com/stacksjs/launchpad
 
 eval "$(starship init zsh)"
 
