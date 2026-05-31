@@ -90,7 +90,7 @@ Den splits configuration into two files, both symlinked from this repo:
    - apply macOS defaults (`.macos`).
 
 5. Install the GUI apps and fonts listed in [`apps.md`](./apps.md).
-6. Copy your latest **backupx** snapshot of app settings from iCloud back into
+6. Copy your latest **ts-backups** snapshot of app settings from iCloud back into
    place (see [App-settings backup](#app-settings-backup)).
 7. Restart to finalize.
 
@@ -144,7 +144,7 @@ bunx ts-backups start    # snapshot app settings to iCloud
 
 > ts-backups currently implements **backup only**. To "restore" on a new machine,
 > copy the latest snapshot from
-> `~/Library/Mobile Documents/com~apple~CloudDocs/backupx` back into place
+> `~/Library/Mobile Documents/com~apple~CloudDocs/ts-backups` back into place
 > manually. (A first-class `restore` command is a planned ts-backups feature.)
 
 ## Cleaning your old Mac (optional)

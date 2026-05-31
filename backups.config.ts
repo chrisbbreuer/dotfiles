@@ -15,7 +15,7 @@ const ICLOUD = `${HOME}/Library/Mobile Documents/com~apple~CloudDocs`
 
 const config: BackupConfig = {
   verbose: true,
-  outputPath: `${ICLOUD}/backupx`,
+  outputPath: `${ICLOUD}/ts-backups`,
   retention: {
     count: 10, // keep the last 10 snapshots
     maxAge: 90, // ...and drop anything older than 90 days

@@ -4,7 +4,7 @@
 # Modern stack (no Homebrew / oh-my-zsh / starship / mackup):
 #   - Pantry   -> all CLI tooling incl. Zig    (replaces Homebrew Brewfile)
 #   - Den      -> the shell + native prompt/plugins (replaces zsh/oh-my-zsh/starship)
-#   - backupx  -> app-settings backup/restore  (replaces Mackup)
+#   - ts-backups -> app-settings backup/restore  (replaces Mackup)
 #
 # Idempotent: safe to re-run.
 set -e
@@ -57,9 +57,9 @@ ln -sf "$DOTFILES/.config/den.jsonc" "$HOME/.config/den.jsonc"    # Den declarat
 rm -f "$HOME/.zshrc"; ln -sf "$DOTFILES/.zshrc" "$HOME/.zshrc"    # zsh fallback
 
 # 6. Application settings (replaces Mackup, via ts-backups).
-#    backupx snapshots settings to iCloud (see backups.config.ts). It currently
+#    ts-backups snapshots settings to iCloud (see backups.config.ts). It currently
 #    implements backup only — on a fresh machine, copy the latest snapshot from
-#    iCloud (~/Library/Mobile Documents/com~apple~CloudDocs/backupx) back into
+#    iCloud (~/Library/Mobile Documents/com~apple~CloudDocs/ts-backups) back into
 #    place manually, then keep it in sync with:  bunx ts-backups start
 echo "==> App settings are backed up via ts-backups (bunx ts-backups start);"
 echo "    restore the latest snapshot from iCloud manually for now."
