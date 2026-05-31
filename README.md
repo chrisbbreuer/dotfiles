@@ -25,12 +25,16 @@ declared in [`deps.yaml`](./deps.yaml) and installed with a single `pantry insta
 Den splits configuration into two files, both symlinked from this repo:
 
 - **[`.denrc`](./.denrc)** → `~/.denrc` — a startup *script*, sourced line-by-line
-  like `.zshrc`. Holds environment variables, `$PATH`, and `source`s the shared
-  [`aliases.zsh`](./aliases.zsh).
+  like `.zshrc`. It just `source`s the two shell-neutral files that both Den and
+  the zsh fallback share: [`env.sh`](./env.sh) (environment + `$PATH`) and
+  [`aliases.sh`](./aliases.sh) (aliases).
 - **[`.config/den.jsonc`](./.config/den.jsonc)** → `~/.config/den.jsonc` — the
   *declarative* config (JSONC). Holds the prompt format, syntax highlighting,
   inline autosuggestions, completion and history search. This is what replaces
   `starship.toml` and the cloned zsh plugins.
+
+Both shells source the same `env.sh` / `aliases.sh`, so there is a single source
+of truth — no duplicated `$PATH` or alias lists between Den and zsh.
 
 ## Repository layout
 
@@ -39,7 +43,8 @@ Den splits configuration into two files, both symlinked from this repo:
 | [`.denrc`](./.denrc) | Den startup script: env, `$PATH`, aliases (primary shell) |
 | [`.config/den.jsonc`](./.config/den.jsonc) | Den declarative config: prompt, highlighting, completion |
 | [`.zshrc`](./.zshrc) | Trimmed **fallback** zsh config with an opt-in `exec den` |
-| [`aliases.zsh`](./aliases.zsh) | Aliases shared by both shells (POSIX-compatible) |
+| [`env.sh`](./env.sh) | Environment + `$PATH`, shared by both shells (POSIX-sh) |
+| [`aliases.sh`](./aliases.sh) | Aliases, shared by both shells (POSIX-sh) |
 | [`deps.yaml`](./deps.yaml) | All CLI dependencies (incl. Zig) installed by Pantry |
 | [`apps.md`](./apps.md) | GUI apps, fonts and Mac App Store apps to install manually |
 | [`backups.config.ts`](./backups.config.ts) | App-settings backup config (ts-backups) |
@@ -110,8 +115,8 @@ chsh -s "$HOME/.local/bin/den"
 ## Day-to-day
 
 - **Install a CLI tool:** add it to `deps.yaml`, then `pantry install`.
-- **Add an alias:** edit `aliases.zsh` (loaded by both shells), then `reloadshell`.
-- **Change env / `$PATH`:** edit `.denrc`, then `reloadshell` (`exec $SHELL`).
+- **Add an alias:** edit `aliases.sh` (loaded by both shells), then `reloadshell`.
+- **Change env / `$PATH`:** edit `env.sh` (loaded by both shells), then `reloadshell` (`exec $SHELL`).
 - **Change prompt / highlighting / completion:** edit `.config/den.jsonc`
   (hot-reloads automatically).
 - **Update / change Zig:** edit the `ziglang.org` pin in `deps.yaml`, then
