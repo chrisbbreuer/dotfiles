@@ -14,7 +14,7 @@ The modern stack:
 | Prompt | Den native prompt (`.config/den.jsonc`) | starship |
 | Shell plugins | Den native features | zsh-autosuggestions, zsh-syntax-highlighting, fast-syntax-highlighting, zsh-autocomplete |
 | CLI packages **+ Zig toolchain** | [**Pantry**](https://github.com/stacksjs/pantry) (`deps.yaml`) | Homebrew `Brewfile` |
-| App-settings backup | [**backupx**](https://github.com/stacksjs/backupx) (`backups.config.ts`) | mackup |
+| App-settings backup | [**ts-backups**](https://github.com/stacksjs/ts-backups) (`backups.config.ts`) | mackup |
 | GUI apps & fonts | manual / `mas` (`apps.md`) | Homebrew casks |
 
 Everything Pantry can install — including **Zig**, Den's build toolchain — is
@@ -42,7 +42,7 @@ Den splits configuration into two files, both symlinked from this repo:
 | [`aliases.zsh`](./aliases.zsh) | Aliases shared by both shells (POSIX-compatible) |
 | [`deps.yaml`](./deps.yaml) | All CLI dependencies (incl. Zig) installed by Pantry |
 | [`apps.md`](./apps.md) | GUI apps, fonts and Mac App Store apps to install manually |
-| [`backups.config.ts`](./backups.config.ts) | App-settings backup config (backupx) |
+| [`backups.config.ts`](./backups.config.ts) | App-settings backup config (ts-backups) |
 | [`fresh.sh`](./fresh.sh) | One-shot provisioning script for a new Mac |
 | [`clone.sh`](./clone.sh) | Clones my working repositories |
 | [`ssh.sh`](./ssh.sh) | Generates a new SSH key for GitHub |
@@ -55,7 +55,7 @@ Den splits configuration into two files, both symlinked from this repo:
 
 - Push all git branches and stashes.
 - Save anything not synced to iCloud (local databases, app data, etc.).
-- Run a fresh app-settings backup: `cd ~/.dotfiles && bunx backupx backup`
+- Run a fresh app-settings backup: `cd ~/.dotfiles && bunx ts-backups start`
   (replaces the old `mackup backup`).
 
 ### 2. Provision the new machine
@@ -133,19 +133,19 @@ your own Den plugin, see Den's `docs/PLUGIN_DEVELOPMENT.md`.
 
 ## App-settings backup
 
-App preferences are snapshotted with [backupx](https://github.com/stacksjs/backupx),
+App preferences are snapshotted with [ts-backups](https://github.com/stacksjs/ts-backups),
 the successor to mackup. Config lives in `backups.config.ts`, which writes snapshots
 to iCloud Drive so they sync across machines.
 
 ```sh
 cd ~/.dotfiles
-bunx backupx backup    # snapshot app settings to iCloud
+bunx ts-backups start    # snapshot app settings to iCloud
 ```
 
-> backupx currently implements **backup only**. To "restore" on a new machine,
+> ts-backups currently implements **backup only**. To "restore" on a new machine,
 > copy the latest snapshot from
 > `~/Library/Mobile Documents/com~apple~CloudDocs/backupx` back into place
-> manually. (A first-class `restore` command is a planned backupx feature.)
+> manually. (A first-class `restore` command is a planned ts-backups feature.)
 
 ## Cleaning your old Mac (optional)
 

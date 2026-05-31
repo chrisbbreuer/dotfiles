@@ -1,14 +1,15 @@
-import type { BackupConfig } from 'backupx'
+import type { BackupConfig } from 'ts-backups'
 
 // App-settings backup config — the successor to the old `.mackup.cfg`.
 //
-// backupx snapshots files/directories (and databases) into `outputPath`. We point
-// `outputPath` at iCloud Drive so settings sync across machines, mirroring what
-// mackup did. Run with:  bunx backupx backup
+// ts-backups snapshots files/directories (and databases) into `outputPath`. We
+// point `outputPath` at iCloud Drive so settings sync across machines, mirroring
+// what mackup did. Run with:  bunx ts-backups start
 //
-// NOTE: backupx currently implements backup only. "Restore" (symlinking settings
-// back into place on a new machine, like `mackup restore`) is a planned feature —
-// for now, copy the relevant snapshot back manually.
+// NOTE: ts-backups currently implements backup only (the `start` command).
+// "Restore" (symlinking settings back into place on a new machine, like
+// `mackup restore`) is a planned feature — for now, copy the relevant snapshot
+// back manually.
 const HOME = process.env.HOME ?? ''
 const ICLOUD = `${HOME}/Library/Mobile Documents/com~apple~CloudDocs`
 

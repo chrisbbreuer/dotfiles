@@ -56,12 +56,12 @@ ln -sf "$DOTFILES/.denrc" "$HOME/.denrc"                          # Den shell st
 ln -sf "$DOTFILES/.config/den.jsonc" "$HOME/.config/den.jsonc"    # Den declarative config
 rm -f "$HOME/.zshrc"; ln -sf "$DOTFILES/.zshrc" "$HOME/.zshrc"    # zsh fallback
 
-# 6. Application settings (replaces Mackup, via backupx).
+# 6. Application settings (replaces Mackup, via ts-backups).
 #    backupx snapshots settings to iCloud (see backups.config.ts). It currently
 #    implements backup only — on a fresh machine, copy the latest snapshot from
 #    iCloud (~/Library/Mobile Documents/com~apple~CloudDocs/backupx) back into
-#    place manually, then keep it in sync with:  bunx backupx backup
-echo "==> App settings are backed up via backupx (bunx backupx backup);"
+#    place manually, then keep it in sync with:  bunx ts-backups start
+echo "==> App settings are backed up via ts-backups (bunx ts-backups start);"
 echo "    restore the latest snapshot from iCloud manually for now."
 
 # 7. Clone repositories.
