@@ -15,7 +15,7 @@ The modern stack:
 | Shell plugins | Den native features | zsh-autosuggestions, zsh-syntax-highlighting, fast-syntax-highlighting, zsh-autocomplete |
 | CLI tools, GUI apps, fonts **+ Zig toolchain** | [**Pantry**](https://github.com/stacksjs/pantry) (`deps.yaml`) | Homebrew `Brewfile` + casks |
 | App-settings backup | [**ts-backups**](https://github.com/stacksjs/ts-backups) (`backups.config.ts`) | mackup |
-| GUI apps reference | [`apps.md`](./apps.md) (catalogue of cask / App Store ids) | — |
+| GUI apps reference | [`apps.md`](./apps.md) (catalogue of the apps Pantry installs) | — |
 
 Everything Pantry can install — including **Zig**, Den's build toolchain — is
 declared in [`deps.yaml`](./deps.yaml) and installed with a single `pantry install`.
@@ -46,7 +46,7 @@ of truth — no duplicated `$PATH` or alias lists between Den and zsh.
 | [`env.sh`](./env.sh) | Environment + `$PATH`, shared by both shells (POSIX-sh) |
 | [`aliases.sh`](./aliases.sh) | Aliases, shared by both shells (POSIX-sh) |
 | [`deps.yaml`](./deps.yaml) | All CLI dependencies (incl. Zig) installed by Pantry |
-| [`apps.md`](./apps.md) | GUI apps, fonts and Mac App Store apps to install manually |
+| [`apps.md`](./apps.md) | Catalogue of the GUI apps + fonts Pantry installs (entry → source) |
 | [`backups.config.ts`](./backups.config.ts) | App-settings backup config (ts-backups) |
 | [`fresh.sh`](./fresh.sh) | One-shot provisioning script for a new Mac |
 | [`clone.sh`](./clone.sh) | Clones my working repositories |
@@ -94,10 +94,13 @@ of truth — no duplicated `$PATH` or alias lists between Den and zsh.
    - clone my repositories (`clone.sh`),
    - apply macOS defaults (`.macos`).
 
-5. Install the GUI apps and fonts listed in [`apps.md`](./apps.md).
-6. Copy your latest **ts-backups** snapshot of app settings from iCloud back into
+5. Copy your latest **ts-backups** snapshot of app settings from iCloud back into
    place (see [App-settings backup](#app-settings-backup)).
-7. Restart to finalize.
+6. Restart to finalize.
+
+> The GUI apps and fonts are installed by `pantry install` in step 4 — see
+> [`apps.md`](./apps.md) for the catalogue. Mac App Store apps need `mas` to be
+> signed in (`mas account`); cask apps may prompt for your password.
 
 ### 3. Start using Den
 
@@ -114,9 +117,10 @@ chsh -s "$HOME/.local/bin/den"
 
 ## Day-to-day
 
-- **Install a CLI tool or GUI app:** add it to `deps.yaml` (a `dependencies:`
-  entry for a CLI tool, or an `apps:` `cask:` / `mas:` entry for an app), then
-  `pantry install`.
+- **Install a CLI tool or GUI app:** add it to `deps.yaml` — a `dependencies:`
+  entry for a CLI tool, or an `apps:` entry for an app (`- cursor` for a
+  Homebrew cask of that name, or `{ mas: "<id>", name: <App> }` for a Mac App
+  Store app) — then `pantry install`.
 - **Add an alias:** edit `aliases.sh` (loaded by both shells), then `reloadshell`.
 - **Change env / `$PATH`:** edit `env.sh` (loaded by both shells), then `reloadshell` (`exec $SHELL`).
 - **Change prompt / highlighting / completion:** edit `.config/den.jsonc`
