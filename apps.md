@@ -1,54 +1,61 @@
 # GUI Applications & Fonts
 
-Pantry manages command-line tools (see [`deps.yaml`](./deps.yaml)). It does **not**
-install macOS `.app` bundles, fonts or Mac App Store apps, so those live here as a
-documented, reproducible checklist for a fresh machine.
+These are declared as dependencies in [`deps.yaml`](./deps.yaml) (the `apps:`,
+`mas:` and `fonts:` entries) and installed by **Pantry** alongside the CLI tools
+— `pantry install` provisions `.app` bundles too, via its desktop-app support
+(Homebrew cask for `cask:` apps, the Mac App Store for `mas:` apps).
 
-Install App Store apps with [`mas`](https://github.com/mas-cli/mas)
-(`mas install <id>`); install the rest by download.
+This file is the human-readable catalogue: what each app is, and its exact
+cask name / App Store id, so the list stays self-documenting and easy to edit.
 
-## Desktop apps
+> If you prefer to install one manually: `brew install --cask <cask>` for a
+> desktop app, or `mas install <id>` for an App Store app.
 
-| App | Notes |
+## Desktop apps (`cask:`)
+
+| App | Cask | Notes |
+| --- | --- | --- |
+| 1Password | `1password` | Password manager |
+| Arc | `arc` | Browser |
+| Cursor | `cursor` | Editor |
+| Visual Studio Code | `visual-studio-code` | Editor |
+| Discord | `discord` | Chat |
+| Docker | `docker` | Containers |
+| GitHub Desktop | `github` | Git GUI |
+| Ghostty | `ghostty` | Terminal — point its shell setting at `~/.local/bin/den` |
+| IINA | `iina` | Media player |
+| ImageOptim | `imageoptim` | Image compression |
+| Insomnia | `insomnia` | API client |
+| Logi Options+ | `logi-options-plus` | Mouse/keyboard |
+| MediaInfo | `mediainfo` | Media metadata |
+| Muzzle | `muzzle` | Mute notifications while screen-sharing |
+| Hidden Bar | `hiddenbar` | Menu bar manager |
+| Raycast | `raycast` | Launcher |
+| Rewind | `rewind` | Recall |
+| Slack | `slack` | Chat |
+| The Unarchiver | `the-unarchiver` | Archives |
+| Transmit | `transmit` | FTP/S3 client |
+| VLC | `vlc` | Media player |
+| Pearcleaner | `pearcleaner` | App uninstaller |
+
+## Mac App Store (`mas:`)
+
+| App | App Store id |
 | --- | --- |
-| 1Password | Password manager |
-| Arc | Browser |
-| Cursor | Editor |
-| Visual Studio Code | Editor |
-| Discord | Chat |
-| Docker | Containers |
-| GitHub Desktop | Git GUI |
-| Ghostty | Terminal — point its shell setting at `~/.local/bin/den` |
-| IINA | Media player |
-| ImageOptim | Image compression |
-| Insomnia | API client |
-| Logi Options+ | Mouse/keyboard |
-| MediaInfo | Media metadata |
-| Muzzle | Mute notifications while screen-sharing |
-| Hidden Bar | Menu bar manager |
-| Raycast | Launcher |
-| Rewind | Recall |
-| Slack | Chat |
-| The Unarchiver | Archives |
-| Transmit | FTP/S3 client |
-| VLC | Media player |
-| Pearcleaner | App uninstaller |
+| AdBlock | `1402042596` |
+| Grammarly for Safari | `1462114288` |
+| Honey | `1472777122` |
+| Wappalyzer | `1520333300` |
+| WhatsApp | `1147396723` |
 
-## Fonts
+## Fonts (`fonts:`)
 
-- Inter
-- Lato
-- Meslo LG Nerd Font (used for the terminal / Den prompt glyphs)
-- Open Sans
-- Roboto
-- Source Code Pro (+ for Powerline)
-
-## Mac App Store (`mas install <id>`)
-
-| App | ID |
+| Font | Cask |
 | --- | --- |
-| AdBlock | 1402042596 |
-| Grammarly for Safari | 1462114288 |
-| Honey | 1472777122 |
-| Wappalyzer | 1520333300 |
-| WhatsApp | 1147396723 |
+| Inter | `font-inter` |
+| Lato | `font-lato` |
+| Meslo LG Nerd Font | `font-meslo-lg-nerd-font` (terminal / Den prompt glyphs) |
+| Open Sans | `font-open-sans` |
+| Roboto | `font-roboto` |
+| Source Code Pro | `font-source-code-pro` |
+| Source Code Pro (Powerline) | `font-source-code-pro-for-powerline` |

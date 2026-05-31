@@ -13,9 +13,9 @@ The modern stack:
 | Shell | [**Den**](https://github.com/stacksjs/den) | zsh + oh-my-zsh |
 | Prompt | Den native prompt (`.config/den.jsonc`) | starship |
 | Shell plugins | Den native features | zsh-autosuggestions, zsh-syntax-highlighting, fast-syntax-highlighting, zsh-autocomplete |
-| CLI packages **+ Zig toolchain** | [**Pantry**](https://github.com/stacksjs/pantry) (`deps.yaml`) | Homebrew `Brewfile` |
+| CLI tools, GUI apps, fonts **+ Zig toolchain** | [**Pantry**](https://github.com/stacksjs/pantry) (`deps.yaml`) | Homebrew `Brewfile` + casks |
 | App-settings backup | [**ts-backups**](https://github.com/stacksjs/ts-backups) (`backups.config.ts`) | mackup |
-| GUI apps & fonts | manual / `mas` (`apps.md`) | Homebrew casks |
+| GUI apps reference | [`apps.md`](./apps.md) (catalogue of cask / App Store ids) | — |
 
 Everything Pantry can install — including **Zig**, Den's build toolchain — is
 declared in [`deps.yaml`](./deps.yaml) and installed with a single `pantry install`.
@@ -87,8 +87,8 @@ of truth — no duplicated `$PATH` or alias lists between Den and zsh.
 
    `fresh.sh` is idempotent and will:
    - install **Pantry** (the package manager),
-   - install **all** dependencies from `deps.yaml` (`pantry install`) — CLI tools
-     **and Zig**, Den's toolchain,
+   - install **all** dependencies from `deps.yaml` (`pantry install`) — CLI tools,
+     GUI apps, fonts **and Zig** (Den's toolchain),
    - clone and build **Den**, then symlink it to `~/.local/bin/den`,
    - symlink `~/.denrc`, `~/.config/den.jsonc` (Den) and `~/.zshrc` (fallback),
    - clone my repositories (`clone.sh`),
@@ -114,7 +114,9 @@ chsh -s "$HOME/.local/bin/den"
 
 ## Day-to-day
 
-- **Install a CLI tool:** add it to `deps.yaml`, then `pantry install`.
+- **Install a CLI tool or GUI app:** add it to `deps.yaml` (a `dependencies:`
+  entry for a CLI tool, or an `apps:` `cask:` / `mas:` entry for an app), then
+  `pantry install`.
 - **Add an alias:** edit `aliases.sh` (loaded by both shells), then `reloadshell`.
 - **Change env / `$PATH`:** edit `env.sh` (loaded by both shells), then `reloadshell` (`exec $SHELL`).
 - **Change prompt / highlighting / completion:** edit `.config/den.jsonc`

@@ -1,10 +1,7 @@
-# Global CLI dependencies — managed by Pantry (https://github.com/stacksjs/pantry)
+# Dependencies — managed by Pantry (https://github.com/stacksjs/pantry)
 #
-# Replaces the old Homebrew `Brewfile` for command-line tools.
-# Install / sync everything with:  pantry install
-#
-# GUI applications, fonts and Mac App Store apps that Pantry cannot manage are
-# documented in ./apps.md.
+# Replaces the old Homebrew `Brewfile` for BOTH command-line tools and GUI
+# applications. Install / sync everything with:  pantry install
 #
 # Notes:
 #   - starship was removed: the prompt is now native to Den (see .config/den.jsonc).
@@ -12,7 +9,15 @@
 #     Den tracks Zig's master branch, so we pin the dev build Den is known to
 #     build against. `pantry install` fetches it from Pantry's registry (Pantry
 #     syncs Zig dev/nightly builds every few hours via its sync-zig-dev workflow).
+#   - GUI apps, fonts and Mac App Store apps are declared in the `apps:` /
+#     `fonts:` sections below — Pantry installs `.app` bundles via its
+#     desktop-app support (Homebrew cask for `cask:`, the App Store for `mas:`).
+#     See ./apps.md for the human-readable catalogue and per-app notes.
 global: true
+
+# ---------------------------------------------------------------------------
+# Command-line tools
+# ---------------------------------------------------------------------------
 dependencies:
   bun.sh: ^1.3.14
   git-scm.org: ^2.51.0
@@ -22,3 +27,49 @@ dependencies:
   gnu.org/grep: ^3.12.0
   crates.io/eza: ^0.21.3
   ziglang.org: 0.17.0-dev.607+456b2ec07
+
+# ---------------------------------------------------------------------------
+# GUI applications
+#   cask: <homebrew-cask-name>   -> installed via Pantry's brew-cask method
+#   mas:  <app-store-id>         -> installed from the Mac App Store
+# ---------------------------------------------------------------------------
+apps:
+  - { cask: 1password }
+  - { cask: arc }
+  - { cask: cursor }
+  - { cask: visual-studio-code }
+  - { cask: discord }
+  - { cask: docker }
+  - { cask: github }              # GitHub Desktop
+  - { cask: ghostty }             # terminal — point its shell at ~/.local/bin/den
+  - { cask: iina }
+  - { cask: imageoptim }
+  - { cask: insomnia }
+  - { cask: logi-options-plus }
+  - { cask: mediainfo }
+  - { cask: muzzle }
+  - { cask: hiddenbar }
+  - { cask: raycast }
+  - { cask: rewind }
+  - { cask: slack }
+  - { cask: the-unarchiver }
+  - { cask: transmit }
+  - { cask: vlc }
+  - { cask: pearcleaner }
+  - { mas: 1402042596, name: AdBlock }
+  - { mas: 1462114288, name: Grammarly for Safari }
+  - { mas: 1472777122, name: Honey }
+  - { mas: 1520333300, name: Wappalyzer }
+  - { mas: 1147396723, name: WhatsApp }
+
+# ---------------------------------------------------------------------------
+# Fonts (Homebrew cask font names)
+# ---------------------------------------------------------------------------
+fonts:
+  - font-inter
+  - font-lato
+  - font-meslo-lg-nerd-font       # terminal / Den prompt glyphs
+  - font-open-sans
+  - font-roboto
+  - font-source-code-pro
+  - font-source-code-pro-for-powerline
