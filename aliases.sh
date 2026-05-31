@@ -1,6 +1,6 @@
 # Shortcuts
 alias copyssh="pbcopy < $HOME/.ssh/id_ed25519.pub"
-alias reloadshell="source $HOME/.zshrc"
+alias reloadshell="exec $SHELL"
 alias reloaddns="dscacheutil -flushcache && sudo killall -HUP mDNSResponder"
 # alias ls="/opt/homebrew/opt/coreutils/libexec/gnubin/ls" # Removed - using Launchpad coreutils instead
 # alias ll="/opt/homebrew/opt/coreutils/libexec/gnubin/ls -AhlFo --color --group-directories-first"
