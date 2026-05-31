@@ -73,7 +73,11 @@ ZSH_CUSTOM=$DOTFILES
 # Custom plugins may be added to $ZSH_CUSTOM/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(git zsh-autosuggestions zsh-syntax-highlighting fast-syntax-highlighting)
+# NOTE: zsh is now only a FALLBACK shell — the primary shell is Den (~/.denrc +
+# ~/.config/den.jsonc). The autosuggestions / syntax-highlighting / autocomplete
+# plugins were removed because Den provides them natively. Only the git plugin
+# remains here for the fallback.
+plugins=(git)
 
 source $ZSH/oh-my-zsh.sh
 
@@ -116,10 +120,30 @@ export PATH="$BUN_INSTALL/bin:$PATH"
 # Added by Windsurf
 export PATH="/Users/chrisbreuer/.codeium/windsurf/bin:$PATH"
 
+# Zig 0.16-dev (with async support)
+export PATH="$HOME/.local/share/zig-0.16-dev:$PATH"
+
 export PATH="/usr/local/sbin:$PATH"
 export PATH="/Users/chrisbreuer/.local/bin:$PATH"
 
-eval "$(starship init zsh)"
+# Added by pantry - must be loaded before starship
+eval "$(pantry dev:shellcode)"  # https://github.com/stacksjs/pantry
 
-# Added by launchpad
-eval "$(launchpad dev:shellcode)"  # https://github.com/stacksjs/launchpad
+# Starship was removed — the prompt is native to Den. In this zsh fallback we use
+# a minimal built-in prompt instead.
+setopt PROMPT_SUBST
+PROMPT='%F{cyan}%~%f %F{green}$(git branch --show-current 2>/dev/null)%f ❯ '
+
+# NOTE: pantry shell integration is now handled by `eval "$(pantry dev:shellcode)"` above
+# which includes auto-install on cd via shell:activate
+export PATH="/opt/homebrew/opt/php@8.4/bin:$PATH"
+export CLAUDE_CODE_MAX_OUTPUT_TOKENS=unlimited
+
+# Launchpad was renamed to Pantry — only pantry dev:shellcode is needed (see above).
+
+# --- Den (opt-in) ---
+# Den is the primary, daily-driver shell (configured in ~/.denrc and
+# ~/.config/den.jsonc); this zsh config is only a fallback. To launch Den
+# automatically for interactive zsh sessions, uncomment the line below — or,
+# preferably, point your terminal app's shell/command setting at ~/.local/bin/den.
+# [[ $- == *i* && -z "$DEN_ACTIVE" ]] && command -v den >/dev/null && DEN_ACTIVE=1 exec den

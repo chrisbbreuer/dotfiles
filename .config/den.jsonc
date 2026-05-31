@@ -1,0 +1,64 @@
+// ~/.config/den.jsonc — Den declarative configuration
+//
+// This replaces starship.toml and the cloned zsh plugins. Den renders the
+// prompt and provides syntax highlighting, inline autosuggestions, completion
+// and history search natively — all configured here.
+//
+// Symlinked from ~/.dotfiles/.config/den.jsonc to ~/.config/den.jsonc by fresh.sh.
+// Shell-level config (env, PATH, aliases) lives in ~/.denrc instead.
+{
+  // Reload this file automatically when it changes.
+  "hot_reload": true,
+
+  // Prompt — replaces starship.toml.
+  // Placeholders: {path} {git} {symbol} {modules} {exitcode} {time}
+  //               and per-language {bun} {node} {zig} {python} {ruby} {go} {rust}
+  "prompt": {
+    "format": "{path}{git} {modules}\n{symbol} ",
+    "show_git": true,
+    "show_path": true,
+    "show_exit_code": true,
+    "simple_when_not_tty": true
+  },
+
+  // Theme / symbols — the prompt char used to be starship's "❯".
+  "theme": {
+    "name": "default",
+    "auto_detect_color_scheme": true,
+    "symbols": {
+      "prompt": "❯",
+      "continuation": "…"
+    }
+  },
+
+  // Line editor — replaces zsh-autosuggestions + (fast-)syntax-highlighting.
+  "line_editor": {
+    "syntax_highlighting": true,
+    "autosuggestions": true,
+    "suggestion_min_chars": 1
+  },
+
+  // Completion — replaces zsh-autocomplete.
+  "completion": {
+    "enabled": true,
+    "case_sensitive": false,
+    "show_descriptions": true,
+    "max_suggestions": 15
+  },
+
+  // History — fuzzy substring search replaces history-substring-search plugins.
+  "history": {
+    "max_entries": 50000,
+    "ignore_duplicates": true,
+    "ignore_space": true,
+    "search_mode": "fuzzy"
+  },
+
+  // zsh compatibility for habits carried over from the old setup.
+  "zsh": {
+    "enabled": true,
+    "glob_qualifiers": true,
+    "prompt_escapes": true,
+    "setopt": true
+  }
+}

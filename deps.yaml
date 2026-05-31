@@ -1,9 +1,21 @@
+# Global CLI dependencies — managed by Pantry (https://github.com/stacksjs/pantry)
+#
+# Replaces the old Homebrew `Brewfile` for command-line tools.
+# Install / sync everything with:  pantry install
+#
+# GUI applications, fonts and Mac App Store apps that Pantry cannot manage are
+# documented in ./apps.md.
+#
+# Notes:
+#   - starship was removed: the prompt is now native to Den (see .config/den.jsonc).
+#   - Zig 0.17-dev (Den's toolchain) is installed via ./bin/install-zig-dev, since
+#     Pantry's ziglang.org package currently only resolves tagged releases.
 global: true
 dependencies:
-  bun.sh: ^1.2.16
+  bun.sh: ^1.3.14
+  git-scm.org: ^2.51.0
+  cli.github.com: ^2.73.0
   gnu.org/bash: ^5.2.37
   gnu.org/coreutils: ^9.7.0
   gnu.org/grep: ^3.12.0
   crates.io/eza: ^0.21.3
-  cli.github.com: ^2.73.0
-  starship.rs: ^1.23.0

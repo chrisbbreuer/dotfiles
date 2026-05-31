@@ -1,0 +1,62 @@
+# ~/.denrc — Den shell startup script
+#
+# Den sources this file line-by-line as shell commands at startup (like .zshrc).
+# Put env vars, $PATH and aliases here. Prompt, syntax highlighting,
+# autosuggestions, completion and history search are configured declaratively in
+# ~/.config/den.jsonc instead (Den provides them natively — no oh-my-zsh, no
+# starship, no cloned zsh plugins).
+#
+# Symlinked from ~/.dotfiles/.denrc to ~/.denrc by ./fresh.sh.
+# Reload after edits with:  reloadshell   (aliased to `exec $SHELL`)
+
+# ---------------------------------------------------------------------------
+# Core environment
+# ---------------------------------------------------------------------------
+export DOTFILES=$HOME/.dotfiles
+
+# Locale
+export LC_ALL=en_US.UTF-8
+export LANG=en_US.UTF-8
+
+# Claude Code
+export CLAUDE_CODE_MAX_OUTPUT_TOKENS=unlimited
+
+# ---------------------------------------------------------------------------
+# PATH
+# Each `export PATH=NEW:$PATH` prepends, so the LAST line wins for ties.
+# ---------------------------------------------------------------------------
+# Pantry-managed binaries (bun, gh, eza, git, zig, ...) — replaces Homebrew
+export PATH=$HOME/.local/share/pantry/global/bin:$PATH
+export PATH=$HOME/.local/share/pantry/global/pantry_modules/.bin:$PATH
+
+# Homebrew — kept only for GUI casks Pantry cannot manage; harmless if absent
+export PATH=/opt/homebrew/bin:$PATH
+
+# PHP 8.4
+export PATH=/opt/homebrew/opt/php@8.4/bin:$PATH
+
+# Composer global tools
+export PATH=$HOME/.composer/vendor/bin:$PATH
+
+# Windsurf
+export PATH=$HOME/.codeium/windsurf/bin:$PATH
+
+# Bun
+export BUN_INSTALL=$HOME/.bun
+export PATH=$BUN_INSTALL/bin:$PATH
+
+# Local scripts
+export PATH=/usr/local/sbin:$PATH
+export PATH=$HOME/.local/bin:$PATH
+
+# Dotfiles bin (highest fixed priority)
+export PATH=$DOTFILES/bin:$PATH
+
+# Project-local binaries before global ones
+export PATH=node_modules/.bin:vendor/bin:$PATH
+export PATH=.:$PATH
+
+# ---------------------------------------------------------------------------
+# Aliases (shared with the zsh fallback — kept POSIX-compatible)
+# ---------------------------------------------------------------------------
+source $HOME/.dotfiles/aliases.zsh

@@ -1,96 +1,156 @@
 <p align="center"><img src="art/banner-2x.png"></p>
 
-## Main differences to Dries's dotfiles
+# Chris's Dotfiles
 
-- Includes Ghostty
-- Pretty console via Starship
-- Stacks-ready
+My personal macOS setup. It takes the manual labor out of provisioning a new Mac
+and keeps every machine I use consistent and reproducible.
 
-## Introduction
+This setup is **Homebrew-free, oh-my-zsh-free, starship-free and mackup-free**.
+The modern stack:
 
-This repository serves as my way to help me set up and maintain my Mac. It takes the effort out of installing everything manually. Everything needed to install my preferred setup of macOS is detailed in this readme. Feel free to explore, learn and copy parts for your own dotfiles. Enjoy!
+| Concern | Tool | Replaces |
+| --- | --- | --- |
+| Shell | [**Den**](https://github.com/stacksjs/den) | zsh + oh-my-zsh |
+| Prompt | Den native prompt (`.config/den.jsonc`) | starship |
+| Shell plugins | Den native features | zsh-autosuggestions, zsh-syntax-highlighting, fast-syntax-highlighting, zsh-autocomplete |
+| CLI packages | [**Pantry**](https://github.com/stacksjs/pantry) (`deps.yaml`) | Homebrew `Brewfile` |
+| Toolchain | Zig 0.17-dev via Pantry (`bin/install-zig-dev`) | — |
+| App-settings backup | [**ts-backups**](https://github.com/stacksjs/ts-backups) (`backups.config.ts`) | mackup |
+| GUI apps & fonts | manual / `mas` (`apps.md`) | Homebrew casks |
 
-📖 - [Read the blog post](https://driesvints.com/blog/getting-started-with-dotfiles)
+## How Den is configured
 
-📺 - [Watch the screencast on Laracasts](https://laracasts.com/series/guest-spotlight/episodes/1)
+Den splits configuration into two files, both symlinked from this repo:
 
-💡 - [Learn how to build your own dotfiles](https://github.com/driesvints/dotfiles#your-own-dotfiles)
+- **[`.denrc`](./.denrc)** → `~/.denrc` — a startup *script*, sourced line-by-line
+  like `.zshrc`. Holds environment variables, `$PATH`, and `source`s the shared
+  [`aliases.zsh`](./aliases.zsh).
+- **[`.config/den.jsonc`](./.config/den.jsonc)** → `~/.config/den.jsonc` — the
+  *declarative* config (JSONC). Holds the prompt format, syntax highlighting,
+  inline autosuggestions, completion and history search. This is what replaces
+  `starship.toml` and the cloned zsh plugins.
 
-If you find this repo useful, [consider sponsoring me](https://github.com/sponsors/driesvints) (a little bit)! ❤️
+## Repository layout
 
-## A Fresh macOS Setup
+| Path | Purpose |
+| --- | --- |
+| [`.denrc`](./.denrc) | Den startup script: env, `$PATH`, aliases (primary shell) |
+| [`.config/den.jsonc`](./.config/den.jsonc) | Den declarative config: prompt, highlighting, completion |
+| [`.zshrc`](./.zshrc) | Trimmed **fallback** zsh config with an opt-in `exec den` |
+| [`aliases.zsh`](./aliases.zsh) | Aliases shared by both shells (POSIX-compatible) |
+| [`deps.yaml`](./deps.yaml) | CLI dependencies installed by Pantry |
+| [`apps.md`](./apps.md) | GUI apps, fonts and Mac App Store apps to install manually |
+| [`backups.config.ts`](./backups.config.ts) | App-settings backup config (ts-backups) |
+| [`bin/install-zig-dev`](./bin/install-zig-dev) | Installs/activates Zig 0.17-dev into Pantry's store |
+| [`fresh.sh`](./fresh.sh) | One-shot provisioning script for a new Mac |
+| [`clone.sh`](./clone.sh) | Clones my working repositories |
+| [`ssh.sh`](./ssh.sh) | Generates a new SSH key for GitHub |
+| [`.macos`](./.macos) | macOS `defaults` tweaks |
+| [`zed.json`](./zed.json) | Zed editor settings |
 
-These instructions are for setting up new Mac devices. Instead, if you want to get started building your own dotfiles, you can [find those instructions below](#your-own-dotfiles).
+## Fresh macOS setup
 
-### Backup your data
+### 1. Back up the old machine first
 
-If you're migrating from an existing Mac, you should first make sure to back up all of your existing data. Go through the checklist below to make sure you didn't forget anything before you migrate.
+- Push all git branches and stashes.
+- Save anything not synced to iCloud (local databases, app data, etc.).
+- Run a fresh app-settings backup: `cd ~/.dotfiles && bunx ts-backups backup`
+  (replaces the old `mackup backup`).
 
-- Did you commit and push any changes/branches to your git repositories?
-- Did you remember to save all important documents from non-iCloud directories?
-- Did you save all of your work from apps that aren't synced through iCloud?
-- Did you remember to export important data from your local database?
-- Did you update [mackup](https://github.com/lra/mackup) to the latest version and ran `mackup backup`?
+### 2. Provision the new machine
 
-### Setting up your Mac
+1. Update macOS to the latest version (System Settings → Software Update).
+2. Generate a new SSH key for GitHub:
 
-After backing up your old Mac you may now follow these install instructions to set up a new one.
-
-1. Update macOS to the latest version through system preferences
-2. [Generate a new public and private SSH key](https://docs.github.com/en/github/authenticating-to-github/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent) by running:
-
-   ```zsh
+   ```sh
    curl https://raw.githubusercontent.com/chrisbbreuer/dotfiles/HEAD/ssh.sh | sh -s "<your-email-address>"
    ```
 
-3. Clone this repo to `~/.dotfiles` with:
+   Add the printed public key at <https://github.com/settings/keys>.
+3. Clone this repo to `~/.dotfiles`:
 
-    ```zsh
-    git clone --recursive git@github.com:chrisbbreuer/dotfiles.git ~/.dotfiles
-    ```
+   ```sh
+   git clone git@github.com:chrisbbreuer/dotfiles.git ~/.dotfiles
+   ```
 
-4. Run the installation with:
+4. Run the installer:
 
-    ```zsh
-    cd ~/.dotfiles && ./fresh.sh
-    ```
+   ```sh
+   cd ~/.dotfiles && ./fresh.sh
+   ```
 
-5. After mackup is synced with your cloud storage, restore preferences by running `mackup restore`
-6. Restart your computer to finalize the process
+   `fresh.sh` is idempotent and will:
+   - install **Pantry** (the package manager),
+   - install all CLI tools from `deps.yaml` (`pantry install`),
+   - install **Zig 0.17-dev** (`bin/install-zig-dev`),
+   - clone and build **Den**, then symlink it to `~/.local/bin/den`,
+   - symlink `~/.denrc`, `~/.config/den.jsonc` (Den) and `~/.zshrc` (fallback),
+   - restore app settings with **ts-backups**,
+   - clone my repositories (`clone.sh`),
+   - apply macOS defaults (`.macos`).
 
-Your Mac is now ready to use!
+5. Install the GUI apps and fonts listed in [`apps.md`](./apps.md).
+6. Restart to finalize.
 
-> 💡 You can use a different location than `~/.dotfiles` if you want. Make sure you also update the reference in the [`.zshrc`](./.zshrc#L2) file.
+### 3. Start using Den
 
-### Cleaning your old Mac (optionally)
+Open a new terminal and run `den`. To have your terminal launch Den directly,
+point its shell/command setting at `~/.local/bin/den`, or uncomment the opt-in
+`exec den` line at the bottom of [`.zshrc`](./.zshrc).
 
-After you've set up your new Mac you may want to wipe and clean install your old Mac. Follow [this article](https://support.apple.com/guide/mac-help/erase-and-reinstall-macos-mh27903/mac) to do that. Remember to [back up your data](#backup-your-data) first!
+To make Den your login shell:
 
-## Your Own Dotfiles
-
-**Please note that the instructions below assume you already have set up Oh My Zsh so make sure to first [install Oh My Zsh](https://github.com/robbyrussell/oh-my-zsh#getting-started) before you continue.**
-
-If you want to start with your own dotfiles from this setup, it's pretty easy to do so. First of all, you'll need to fork this repo. After that, you can tweak it the way you want.
-
-Go through the [`.macos`](./.macos) file and adjust the settings to your liking. You can find much more settings in [the original script by Mathias Bynens](https://github.com/mathiasbynens/dotfiles/blob/master/.macos) and [Kevin Suttle's macOS Defaults project](https://github.com/kevinSuttle/MacOS-Defaults).
-
-Check out the [`Brewfile`](./Brewfile) file and adjust the apps you want to install for your machine. Use [their search page](https://formulae.brew.sh/cask/) to check if the app you want to install is available.
-
-Check out the [`aliases.zsh`](./aliases.zsh) file and add your own aliases. If you need to tweak your `$PATH` check out the [`path.zsh`](./path.zsh) file. These files get loaded in because the `$ZSH_CUSTOM` setting points to the `.dotfiles` directory. You can adjust the [`.zshrc`](./.zshrc) file to your liking to tweak your Oh My Zsh setup. More info about how to customize Oh My Zsh can be found [here](https://github.com/robbyrussell/oh-my-zsh/wiki/Customization).
-
-When installing these dotfiles for the first time you'll need to backup all of your settings with Mackup. Install Mackup and back up your settings with the commands below. Your settings will be synced to iCloud so you can use them to sync between computers and reinstall them when reinstalling your Mac. If you want to save your settings to a different directory or different storage than iCloud, [check out the documentation](https://github.com/lra/mackup/blob/master/doc/README.md#storage). Also, make sure your `.zshrc` file is symlinked from your dotfiles repo to your home directory.
-
-```zsh
-brew install mackup
-mackup backup
+```sh
+echo "$HOME/.local/bin/den" | sudo tee -a /etc/shells
+chsh -s "$HOME/.local/bin/den"
 ```
 
-You can tweak the shell theme, the Oh My Zsh settings and much more. Go through the files in this repo and tweak everything to your liking.
+## Day-to-day
 
-Enjoy your own Dotfiles!
+- **Install a CLI tool:** add it to `deps.yaml`, then `pantry install`.
+- **Add an alias:** edit `aliases.zsh` (loaded by both shells), then `reloadshell`.
+- **Change env / `$PATH`:** edit `.denrc`, then `reloadshell` (`exec $SHELL`).
+- **Change prompt / highlighting / completion:** edit `.config/den.jsonc`
+  (hot-reloads automatically).
+- **Update Zig:** `./bin/install-zig-dev` (pulls the latest 0.17-dev nightly).
+- **Rebuild Den after pulling:** `cd ~/Code/den && zig build -Doptimize=ReleaseFast`.
 
-## Thanks To...
+### The prompt
 
-I first got the idea for starting this project by visiting the [GitHub does dotfiles](https://dotfiles.github.io/) project. Both [Zach Holman](https://github.com/holman/dotfiles) and [Mathias Bynens](https://github.com/mathiasbynens/dotfiles) were great sources of inspiration. [Sourabh Bajaj](https://twitter.com/sb2nov/)'s [Mac OS X Setup Guide](http://sourabhbajaj.com/mac-setup/) proved to be invaluable. Thanks to [@subnixr](https://github.com/subnixr) for [his awesome Zsh theme](https://github.com/subnixr/minimal)! Thanks to [Caneco](https://twitter.com/caneco) for the header in this readme. And lastly, I'd like to thank [Emma Fabre](https://twitter.com/anahkiasen) for [her excellent presentation on Homebrew](https://speakerdeck.com/anahkiasen/a-storm-homebrewin) which made me migrate a lot to a [`Brewfile`](./Brewfile) and [Mackup](https://github.com/lra/mackup).
+Configured in `.config/den.jsonc` via `prompt.format` — no starship. Placeholders
+include `{path}`, `{git}`, `{symbol}`, `{modules}`, `{exitcode}` and per-language
+modules like `{bun}`, `{node}`, `{zig}`, `{python}`. Tweak to taste.
 
-In general, I'd like to thank every single one who open-sources their dotfiles for their effort to contribute something to the open-source community.
+### Native plugins
+
+Den's autosuggestions, syntax highlighting, completion and fuzzy history search
+are **built in** — toggled via `line_editor`, `completion` and `history` in
+`.config/den.jsonc`. There are no cloned zsh plugin repos to maintain. To develop
+your own Den plugin, see Den's `docs/PLUGIN_DEVELOPMENT.md`.
+
+## App-settings backup
+
+App preferences are backed up/restored with
+[ts-backups](https://github.com/stacksjs/ts-backups) (an iCloud-synced,
+TypeScript-configured successor to mackup). Config lives in `backups.config.ts`.
+
+```sh
+cd ~/.dotfiles
+bunx ts-backups backup    # snapshot app settings to iCloud
+bunx ts-backups restore   # restore on a new machine
+```
+
+## Cleaning your old Mac (optional)
+
+After the new Mac is set up you can
+[erase and reinstall macOS](https://support.apple.com/guide/mac-help/erase-and-reinstall-macos-mh27903/mac)
+on the old one. Make sure you backed everything up first.
+
+## Thanks
+
+Originally based on [Dries Vintens's dotfiles](https://github.com/driesvints/dotfiles),
+with inspiration from [Zach Holman](https://github.com/holman/dotfiles),
+[Mathias Bynens](https://github.com/mathiasbynens/dotfiles) and the
+[GitHub does dotfiles](https://dotfiles.github.io/) project. Banner by
+[Caneco](https://twitter.com/caneco). Thanks to everyone who open-sources their
+dotfiles.
