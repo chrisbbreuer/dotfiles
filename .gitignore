@@ -1,2 +1,5 @@
+.DS_Store
 Brewfile.lock.json
 /pantry_modules
+/pantry.lock
+node_modules
