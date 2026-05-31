@@ -1,22 +1,52 @@
-import type { BackupConfig } from 'ts-backups'
+import type { BackupConfig } from 'backupx'
 
-// Application-settings backup config — replaces the old `.mackup.cfg`.
-// Run with: bunx ts-backups backup   /   bunx ts-backups restore
+// App-settings backup config — the successor to the old `.mackup.cfg`.
+//
+// backupx snapshots files/directories (and databases) into `outputPath`. We point
+// `outputPath` at iCloud Drive so settings sync across machines, mirroring what
+// mackup did. Run with:  bunx backupx backup
+//
+// NOTE: backupx currently implements backup only. "Restore" (symlinking settings
+// back into place on a new machine, like `mackup restore`) is a planned feature —
+// for now, copy the relevant snapshot back manually.
+const HOME = process.env.HOME ?? ''
+const ICLOUD = `${HOME}/Library/Mobile Documents/com~apple~CloudDocs`
+
 const config: BackupConfig = {
   verbose: true,
-  storage: {
-    // 'local' | 'icloud' | 'dropbox' | 'google-drive'
-    engine: 'icloud',
-    path: 'ts-backups',
-    symlink: true,
+  outputPath: `${ICLOUD}/backupx`,
+  retention: {
+    count: 10, // keep the last 10 snapshots
+    maxAge: 90, // ...and drop anything older than 90 days
   },
-  // Empty = let ts-backups autodetect supported apps.
-  applications: [],
-  directories: [],
-  files: [],
-  // Shell config (zsh/den) is version-controlled in this dotfiles repo, so we
-  // don't back it up here; also skip noise.
-  ignore: ['.DS_Store', '*.log', 'zsh', 'den'],
+  databases: [],
+  files: [
+    {
+      name: 'vscode-settings',
+      path: `${HOME}/Library/Application Support/Code/User`,
+      compress: true,
+      include: ['settings.json', 'keybindings.json', 'snippets/**'],
+    },
+    {
+      name: 'cursor-settings',
+      path: `${HOME}/Library/Application Support/Cursor/User`,
+      compress: true,
+      include: ['settings.json', 'keybindings.json', 'snippets/**'],
+    },
+    {
+      name: 'zed-settings',
+      path: `${HOME}/.config/zed`,
+      compress: true,
+    },
+    {
+      name: 'ssh-config',
+      path: `${HOME}/.ssh/config`,
+    },
+    {
+      name: 'gitconfig',
+      path: `${HOME}/.gitconfig`,
+    },
+  ],
 }
 
 export default config

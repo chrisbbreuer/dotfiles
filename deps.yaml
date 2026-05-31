@@ -8,8 +8,10 @@
 #
 # Notes:
 #   - starship was removed: the prompt is now native to Den (see .config/den.jsonc).
-#   - Zig 0.17-dev (Den's toolchain) is installed via ./bin/install-zig-dev, since
-#     Pantry's ziglang.org package currently only resolves tagged releases.
+#   - Zig is Den's build toolchain and is managed by Pantry like everything else.
+#     Den tracks Zig's master branch, so we pin the dev build Den is known to
+#     build against. `pantry install` fetches it from Pantry's registry (Pantry
+#     syncs Zig dev/nightly builds every few hours via its sync-zig-dev workflow).
 global: true
 dependencies:
   bun.sh: ^1.3.14
@@ -19,3 +21,4 @@ dependencies:
   gnu.org/coreutils: ^9.7.0
   gnu.org/grep: ^3.12.0
   crates.io/eza: ^0.21.3
+  ziglang.org: 0.17.0-dev.607+456b2ec07
