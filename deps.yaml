@@ -1,7 +1,6 @@
 # Dependencies — managed by Pantry (https://github.com/stacksjs/pantry)
 #
-# Replaces the old Homebrew `Brewfile` for BOTH command-line tools and GUI
-# applications. Install / sync everything with:  pantry install
+# Install / sync everything with:  pantry install
 #
 # Notes:
 #   - starship was removed: the prompt is now native to Den (see .config/den.jsonc).
