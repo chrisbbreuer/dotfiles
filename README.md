@@ -49,7 +49,9 @@ of truth — no duplicated `$PATH` or alias lists between Den and zsh.
 | [`apps.md`](./apps.md) | Catalogue of the GUI apps + fonts Pantry installs (entry → source) |
 | [`.config/backups.ts`](./.config/backups.ts) | What gets synced to iCloud: credentials, project `.env`s, app settings (ts-backups) |
 | [`bin/dotsync`](./bin/dotsync) | Runs ts-backups (from source) against `.config/backups.ts` |
-| [`package.json`](./package.json) | `bun run backup` / `bun run restore` convenience scripts |
+| [`bin/git-sync.ts`](./bin/git-sync.ts) | Rescues/recovers local-only git work (unpushed commits, stashes, uncommitted, untracked) |
+| [`bin/dot-recover`](./bin/dot-recover) | One-shot new-machine recovery: secrets + repos + git work |
+| [`package.json`](./package.json) | `bun run backup` / `rescue` / `recover` / `prewipe` scripts |
 | [`fresh.sh`](./fresh.sh) | One-shot provisioning script for a new Mac |
 | [`clone.sh`](./clone.sh) | Clones every repo in the stacksjs / home-lang / cwcss / zig-utils orgs |
 | [`ssh.sh`](./ssh.sh) | Generates a new SSH key for GitHub |
@@ -60,10 +62,14 @@ of truth — no duplicated `$PATH` or alias lists between Den and zsh.
 
 ### 1. Back up the old machine first
 
-- Push all git branches and stashes.
-- Save anything not synced to iCloud (local databases, app data, etc.).
-- Run a fresh sync of credentials, project `.env`s and app settings to iCloud:
-  `cd ~/.dotfiles && bun run backup` (replaces the old `mackup backup`).
+- Run a full off-machine sync to iCloud: `cd ~/.dotfiles && bun run prewipe`.
+  This snapshots credentials, project `.env`s and app settings **and** rescues all
+  your local-only git work — unpushed commits, stashes, uncommitted changes,
+  untracked files and any no-remote repos (replaces the old `mackup backup`, and
+  means you no longer have to manually push every branch/stash first).
+- **Wait for iCloud to finish uploading** (see the warning under
+  [Backups & restore](#backups--restore)) before erasing.
+- Save anything still not covered (large local databases, other app data, etc.).
 
 ### 2. Provision the new machine
 
@@ -93,16 +99,16 @@ of truth — no duplicated `$PATH` or alias lists between Den and zsh.
      GUI apps, fonts **and Zig** (Den's toolchain),
    - clone and build **Den**, then symlink it to `~/.local/bin/den`,
    - symlink `~/.denrc`, `~/.config/den.jsonc` (Den) and `~/.zshrc` (fallback),
-   - **restore your credentials, project `.env`s and app settings from iCloud**
-     (`bun run restore` — see [Backups & restore](#backups--restore)), so the SSH
-     key is in place before the next step,
-   - clone **every repo** in the stacksjs / home-lang / cwcss / zig-utils orgs
-     (`clone.sh`),
+   - **recover everything from iCloud** (`bun run recover` — see
+     [Backups & restore](#backups--restore)): credentials, project `.env`s and app
+     settings, then every repo cloned back to its original `~/Code` path with all
+     your local-only git work (unpushed commits, stashes, uncommitted, untracked),
+     then any remaining org repos,
    - apply macOS defaults (`.macos`).
 
-   > Restore and repo-cloning need iCloud signed in and `gh` authenticated. If
-   > either isn't ready, `fresh.sh` skips it with a printed follow-up command —
-   > re-run `bun run restore` and `sh clone.sh` once they are.
+   > Recovery needs iCloud signed in and `gh` authenticated. If either isn't ready,
+   > `fresh.sh` skips it with a printed follow-up — re-run `bun run recover` once
+   > iCloud has synced (and `gh auth login` if cloning needs it).
 
 5. Restart to finalize.
 
@@ -154,21 +160,46 @@ your own Den plugin, see Den's `docs/PLUGIN_DEVELOPMENT.md`.
 
 ## Backups & restore
 
-Credentials, every project `.env`, and app settings are snapshotted with
-[ts-backups](https://github.com/stacksjs/ts-backups), the successor to mackup.
-What gets synced is declared in [`.config/backups.ts`](./.config/backups.ts);
-snapshots are written to **iCloud Drive**
-(`~/Library/Mobile Documents/com~apple~CloudDocs/ts-backups`), so they survive a
-wipe and sync across machines — and **never touch this public git repo**.
+Everything that a macOS wipe would otherwise destroy is synced to **iCloud Drive**
+(`~/Library/Mobile Documents/com~apple~CloudDocs/ts-backups`) — so it survives the
+wipe, syncs across machines, and **never touches this public git repo**. There are
+two halves:
+
+1. **Secrets & settings** — credentials, project `.env`s and app settings, via
+   [ts-backups](https://github.com/stacksjs/ts-backups) (the mackup successor),
+   declared in [`.config/backups.ts`](./.config/backups.ts).
+2. **Local-only git work** — unpushed commits, every stash, uncommitted changes,
+   untracked files, and repos with no remote, via [`bin/git-sync.ts`](./bin/git-sync.ts).
+   These exist **nowhere else** and re-cloning from GitHub will not bring them back.
+
+### Before a wipe
 
 ```sh
 cd ~/.dotfiles
-bun run backup     # snapshot everything to iCloud
-bun run restore    # restore everything (overwrites local) — used on a fresh Mac
-bun run list       # list the snapshots currently in iCloud
+bun run prewipe    # = backup (secrets/.env/settings) + rescue (all local git work)
 ```
 
-What's covered:
+Or run the halves separately: `bun run backup` and `bun run rescue`.
+`bun run list` shows what's in iCloud.
+
+> ⚠️ **Wait for iCloud to finish uploading before you wipe.** These files are
+> written locally first; iCloud uploads them in the background and there's no
+> reliable CLI to confirm completion. Check Finder (the `ts-backups` folder shows
+> no pending-upload arrows) or System Settings → your name → iCloud before erasing.
+
+### After a reinstall — one command
+
+```sh
+cd ~/.dotfiles && bun run recover
+```
+
+`recover` ([`bin/dot-recover`](./bin/dot-recover)) does the whole thing: restores
+credentials/`.env`s/settings, clones **every repo back to its original `~/Code`
+path** and replays your unpushed commits, stashes, uncommitted changes and
+untracked files, then clones any remaining org repos. `fresh.sh` calls it for you;
+run it by hand if iCloud wasn't synced yet at provision time.
+
+### What's covered (secrets & settings)
 
 - **Credentials/profile** — `~/.ssh` (keys, with perms preserved), `~/.aws`,
   `~/.config/gh`, `~/.config/github-copilot`, `~/.npmrc`, `~/.docker/config.json`,
@@ -179,13 +210,24 @@ What's covered:
 - **Project secrets** — every real `.env` / `.env.*` under `~/Code` (recursively,
   paths preserved; `.env.example` and friends skipped).
 
-Each entry is its own timestamped, retained snapshot, so you can restore one
-thing in isolation:
+Each entry is its own timestamped, retained snapshot, so you can restore one thing
+in isolation:
 
 ```sh
-bun run restore -- --only ssh --overwrite     # just the SSH keys
-./bin/dotsync restore --only project-envs --overwrite
+./bin/dotsync restore --only ssh --overwrite          # just the SSH keys
+./bin/dotsync restore --only project-envs --overwrite # just the project .env files
 ```
+
+### How the git rescue works
+
+`bin/git-sync.ts rescue` walks `~/Code` and, for each repo, bundles only the
+objects that aren't already on a remote (`git bundle --all --not --remotes`) plus
+every stash and your uncommitted/untracked files; a repo with no remote is bundled
+in full. It records a manifest of all repos and their remotes so `recover` can
+rebuild your exact layout. **Nothing is pushed and your working repos are left
+untouched.** Restore is non-destructive: bundled refs land under `refs/rescued/*`,
+branches only fast-forward, and a diverged branch is flagged for you to merge by
+hand.
 
 > ts-backups runs from source via `bun` (it isn't published to npm). `bin/dotsync`
 > finds your local checkout — `~/Code/Libraries/ts-backups`, `~/Code/ts-backups`,
