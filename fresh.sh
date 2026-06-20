@@ -23,16 +23,27 @@ if ! xcode-select -p >/dev/null 2>&1; then
 fi
 
 # 2. Pantry — replaces Homebrew for every command-line tool.
+#    The installer drops the `pantry` binary in ~/.local/bin (its default
+#    PANTRY_INSTALL_DIR); `pantry install` then populates the global tool dirs.
 if ! command -v pantry >/dev/null 2>&1; then
   echo "==> Installing Pantry..."
-  curl -fsSL https://pantry.sh | sh
+  curl -fsSL https://pantry.dev | bash
 fi
-export PATH="$HOME/.local/share/pantry/global/bin:$HOME/.local/share/pantry/global/pantry_modules/.bin:$PATH"
+export PATH="$HOME/.local/bin:$HOME/.local/share/pantry/global/bin:$HOME/.local/share/pantry/global/pantry_modules/.bin:$PATH"
 
 # 3. ALL global dependencies (see deps.yaml) via Pantry — bun, git, gh, eza,
 #    coreutils, grep, bash, and Zig (Den's build toolchain).
+#    NB: the CLI tools are pantry-native, but deps.yaml's `apps:`/`fonts:` shell
+#    out to Homebrew casks + `mas`. Those need Homebrew installed and the App
+#    Store signed in; if they're absent only the GUI apps are skipped, so don't
+#    let that abort the critical CLI/toolchain install below.
+if ! command -v brew >/dev/null 2>&1; then
+  echo "    (Homebrew not found — GUI apps/fonts in deps.yaml will be skipped."
+  echo "     Install it from https://brew.sh and re-run 'pantry install' for the apps.)"
+fi
 echo "==> Installing all dependencies via Pantry..."
-( cd "$DOTFILES" && pantry install )
+( cd "$DOTFILES" && pantry install ) \
+  || echo "    WARNING: 'pantry install' reported errors (often just the GUI apps needing Homebrew). CLI tools should still be installed — continuing."
 
 # Sanity check: Den needs Zig 0.17-dev. If Pantry's registry hasn't yet published
 # a recent enough dev build, surface it clearly rather than failing cryptically.

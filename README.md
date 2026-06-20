@@ -113,8 +113,12 @@ of truth — no duplicated `$PATH` or alias lists between Den and zsh.
 5. Restart to finalize.
 
 > The GUI apps and fonts are installed by `pantry install` in step 4 — see
-> [`apps.md`](./apps.md) for the catalogue. Mac App Store apps need `mas` to be
-> signed in (`mas account`); cask apps may prompt for your password.
+> [`apps.md`](./apps.md) for the catalogue. Pantry installs the CLI tools natively
+> but shells out to **Homebrew** for the `apps:`/`fonts:` casks and to `mas` for
+> Mac App Store apps, so those need [Homebrew](https://brew.sh) present and the
+> App Store signed in (`mas account`); casks may prompt for your password. The
+> core setup (shell, tools, Den, recovery) works without Homebrew — only the GUI
+> apps are skipped if it's absent.
 
 ### 3. Start using Den
 
