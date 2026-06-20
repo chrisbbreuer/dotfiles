@@ -1,0 +1,14 @@
+{
+  "name": "dotfiles",
+  "type": "module",
+  "private": true,
+  "description": "Chris's macOS dotfiles — provisioning + credential/.env sync for a fresh machine.",
+  "scripts": {
+    "backup": "./bin/dotsync start",
+    "restore": "./bin/dotsync restore --overwrite",
+    "restore:safe": "./bin/dotsync restore",
+    "list": "./bin/dotsync list",
+    "ssh:backup": "./bin/dotsync start --verbose",
+    "ssh:restore": "./bin/dotsync restore --only ssh --overwrite"
+  }
+}

@@ -1,0 +1,64 @@
+#!/bin/sh
+# dotsync — back up / restore credentials, .env files and app settings via
+# ts-backups, using ~/.dotfiles/backups.config.ts.
+#
+# ts-backups is not published to npm and its dist isn't committed, so we run it
+# straight from source with bun. This wrapper finds (or clones) that source and
+# runs the CLI from the dotfiles directory, where bunfig resolves the config.
+#
+#   dotsync start                       # snapshot everything to iCloud
+#   dotsync restore --overwrite         # restore everything from iCloud
+#   dotsync restore --only ssh --overwrite
+#   dotsync list                        # show snapshots in the iCloud folder
+#
+# Override the ts-backups checkout with:  TS_BACKUPS_DIR=/path dotsync start
+set -e
+
+DOTFILES="${DOTFILES:-$HOME/.dotfiles}"
+CODE="$HOME/Code"
+TS_BACKUPS_REPO="https://github.com/stacksjs/ts-backups.git"
+
+# `list` is a convenience the CLI doesn't provide: peek at the iCloud folder.
+if [ "$1" = "list" ]; then
+  ICLOUD="$HOME/Library/Mobile Documents/com~apple~CloudDocs/ts-backups"
+  if [ -d "$ICLOUD" ]; then
+    echo "Snapshots in $ICLOUD:"
+    ls -1sh "$ICLOUD" | sort
+  else
+    echo "No snapshots yet — run 'dotsync start' first ($ICLOUD does not exist)."
+  fi
+  exit 0
+fi
+
+# Locate the ts-backups source, in preference order.
+find_ts_backups() {
+  for dir in \
+    "$TS_BACKUPS_DIR" \
+    "$CODE/Libraries/ts-backups" \
+    "$CODE/ts-backups" \
+    "$CODE/stacksjs/ts-backups" \
+    "$CODE/Tools/ts-backups"; do
+    if [ -n "$dir" ] && [ -f "$dir/bin/cli.ts" ]; then
+      echo "$dir"
+      return 0
+    fi
+  done
+  return 1
+}
+
+if ! TSB="$(find_ts_backups)"; then
+  echo "==> ts-backups source not found — cloning into $CODE/ts-backups..."
+  mkdir -p "$CODE"
+  git clone "$TS_BACKUPS_REPO" "$CODE/ts-backups"
+  TSB="$CODE/ts-backups"
+fi
+
+# Ensure its dependencies are installed (first run on a fresh machine).
+if [ ! -d "$TSB/node_modules" ]; then
+  echo "==> Installing ts-backups dependencies (one-time)..."
+  ( cd "$TSB" && bun install )
+fi
+
+# Run from .config so bunfig resolves backups.ts (the config lives there).
+cd "$DOTFILES/.config"
+exec bun "$TSB/bin/cli.ts" "$@"
