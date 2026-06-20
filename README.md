@@ -14,7 +14,7 @@ The modern stack:
 | Prompt | Den native prompt (`.config/den.jsonc`) | starship |
 | Shell plugins | Den native features | zsh-autosuggestions, zsh-syntax-highlighting, fast-syntax-highlighting, zsh-autocomplete |
 | CLI tools, GUI apps, fonts **+ Zig toolchain** | [**Pantry**](https://github.com/stacksjs/pantry) (`deps.yaml`) | Homebrew `Brewfile` + casks |
-| App-settings backup | [**ts-backups**](https://github.com/stacksjs/ts-backups) (`backups.config.ts`) | mackup |
+| Credentials, `.env` & app-settings sync | [**ts-backups**](https://github.com/stacksjs/ts-backups) (`.config/backups.ts` → iCloud) | mackup |
 | GUI apps reference | [`apps.md`](./apps.md) (catalogue of the apps Pantry installs) | — |
 
 Everything Pantry can install — including **Zig**, Den's build toolchain — is
@@ -47,9 +47,11 @@ of truth — no duplicated `$PATH` or alias lists between Den and zsh.
 | [`aliases.sh`](./aliases.sh) | Aliases, shared by both shells (POSIX-sh) |
 | [`deps.yaml`](./deps.yaml) | All CLI dependencies (incl. Zig) installed by Pantry |
 | [`apps.md`](./apps.md) | Catalogue of the GUI apps + fonts Pantry installs (entry → source) |
-| [`backups.config.ts`](./backups.config.ts) | App-settings backup config (ts-backups) |
+| [`.config/backups.ts`](./.config/backups.ts) | What gets synced to iCloud: credentials, project `.env`s, app settings (ts-backups) |
+| [`bin/dotsync`](./bin/dotsync) | Runs ts-backups (from source) against `.config/backups.ts` |
+| [`package.json`](./package.json) | `bun run backup` / `bun run restore` convenience scripts |
 | [`fresh.sh`](./fresh.sh) | One-shot provisioning script for a new Mac |
-| [`clone.sh`](./clone.sh) | Clones my working repositories |
+| [`clone.sh`](./clone.sh) | Clones every repo in the stacksjs / home-lang / cwcss / zig-utils orgs |
 | [`ssh.sh`](./ssh.sh) | Generates a new SSH key for GitHub |
 | [`.macos`](./.macos) | macOS `defaults` tweaks |
 | [`zed.json`](./zed.json) | Zed editor settings |
@@ -60,8 +62,8 @@ of truth — no duplicated `$PATH` or alias lists between Den and zsh.
 
 - Push all git branches and stashes.
 - Save anything not synced to iCloud (local databases, app data, etc.).
-- Run a fresh app-settings backup: `cd ~/.dotfiles && bunx ts-backups start`
-  (replaces the old `mackup backup`).
+- Run a fresh sync of credentials, project `.env`s and app settings to iCloud:
+  `cd ~/.dotfiles && bun run backup` (replaces the old `mackup backup`).
 
 ### 2. Provision the new machine
 
@@ -91,12 +93,18 @@ of truth — no duplicated `$PATH` or alias lists between Den and zsh.
      GUI apps, fonts **and Zig** (Den's toolchain),
    - clone and build **Den**, then symlink it to `~/.local/bin/den`,
    - symlink `~/.denrc`, `~/.config/den.jsonc` (Den) and `~/.zshrc` (fallback),
-   - clone my repositories (`clone.sh`),
+   - **restore your credentials, project `.env`s and app settings from iCloud**
+     (`bun run restore` — see [Backups & restore](#backups--restore)), so the SSH
+     key is in place before the next step,
+   - clone **every repo** in the stacksjs / home-lang / cwcss / zig-utils orgs
+     (`clone.sh`),
    - apply macOS defaults (`.macos`).
 
-5. Copy your latest **ts-backups** snapshot of app settings from iCloud back into
-   place (see [App-settings backup](#app-settings-backup)).
-6. Restart to finalize.
+   > Restore and repo-cloning need iCloud signed in and `gh` authenticated. If
+   > either isn't ready, `fresh.sh` skips it with a printed follow-up command —
+   > re-run `bun run restore` and `sh clone.sh` once they are.
+
+5. Restart to finalize.
 
 > The GUI apps and fonts are installed by `pantry install` in step 4 — see
 > [`apps.md`](./apps.md) for the catalogue. Mac App Store apps need `mas` to be
@@ -121,6 +129,8 @@ chsh -s "$HOME/.local/bin/den"
   entry for a CLI tool, or an `apps:` entry for an app (`- cursor` for a
   Homebrew cask of that name, or `{ mas: "<id>", name: <App> }` for a Mac App
   Store app) — then `pantry install`.
+- **Sync a new secret/setting:** add it (or a new app's config) to
+  `.config/backups.ts`, then `bun run backup`.
 - **Add an alias:** edit `aliases.sh` (loaded by both shells), then `reloadshell`.
 - **Change env / `$PATH`:** edit `env.sh` (loaded by both shells), then `reloadshell` (`exec $SHELL`).
 - **Change prompt / highlighting / completion:** edit `.config/den.jsonc`
@@ -142,21 +152,48 @@ are **built in** — toggled via `line_editor`, `completion` and `history` in
 `.config/den.jsonc`. There are no cloned zsh plugin repos to maintain. To develop
 your own Den plugin, see Den's `docs/PLUGIN_DEVELOPMENT.md`.
 
-## App-settings backup
+## Backups & restore
 
-App preferences are snapshotted with [ts-backups](https://github.com/stacksjs/ts-backups),
-the successor to mackup. Config lives in `backups.config.ts`, which writes snapshots
-to iCloud Drive so they sync across machines.
+Credentials, every project `.env`, and app settings are snapshotted with
+[ts-backups](https://github.com/stacksjs/ts-backups), the successor to mackup.
+What gets synced is declared in [`.config/backups.ts`](./.config/backups.ts);
+snapshots are written to **iCloud Drive**
+(`~/Library/Mobile Documents/com~apple~CloudDocs/ts-backups`), so they survive a
+wipe and sync across machines — and **never touch this public git repo**.
 
 ```sh
 cd ~/.dotfiles
-bunx ts-backups start    # snapshot app settings to iCloud
+bun run backup     # snapshot everything to iCloud
+bun run restore    # restore everything (overwrites local) — used on a fresh Mac
+bun run list       # list the snapshots currently in iCloud
 ```
 
-> ts-backups currently implements **backup only**. To "restore" on a new machine,
-> copy the latest snapshot from
-> `~/Library/Mobile Documents/com~apple~CloudDocs/ts-backups` back into place
-> manually. (A first-class `restore` command is a planned ts-backups feature.)
+What's covered:
+
+- **Credentials/profile** — `~/.ssh` (keys, with perms preserved), `~/.aws`,
+  `~/.config/gh`, `~/.config/github-copilot`, `~/.npmrc`, `~/.docker/config.json`,
+  `~/.config/composer`.
+- **Git identity** — `~/.gitconfig`, `~/.config/git`.
+- **App settings** — VS Code / Cursor `settings.json`+`keybindings.json`+snippets,
+  `~/.config/zed`, `~/.config/raycast` (extensions excluded).
+- **Project secrets** — every real `.env` / `.env.*` under `~/Code` (recursively,
+  paths preserved; `.env.example` and friends skipped).
+
+Each entry is its own timestamped, retained snapshot, so you can restore one
+thing in isolation:
+
+```sh
+bun run restore -- --only ssh --overwrite     # just the SSH keys
+./bin/dotsync restore --only project-envs --overwrite
+```
+
+> ts-backups runs from source via `bun` (it isn't published to npm). `bin/dotsync`
+> finds your local checkout — `~/Code/Libraries/ts-backups`, `~/Code/ts-backups`,
+> or `~/Code/stacksjs/ts-backups` — and clones it if missing.
+
+> **Note:** secrets live in your iCloud, which you're trusting with them. Your
+> `gh` token lives in the macOS keyring (not a file), so it doesn't transfer —
+> on a new machine the SSH keys cover git, and `gh auth login` re-auths the CLI.
 
 ## Cleaning your old Mac (optional)
 
