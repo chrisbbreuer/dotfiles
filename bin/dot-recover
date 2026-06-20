@@ -1,0 +1,37 @@
+#!/bin/sh
+# dot-recover — the one command you run ONCE on a freshly set-up Mac to pull
+# everything back: credentials, project .env files, app settings, every repo
+# (at its original ~/Code path) and all your local-only git work — unpushed
+# commits, stashes, uncommitted changes and untracked files.
+#
+#   bun run recover        (from ~/.dotfiles)
+#
+# It reads from the iCloud backup folder produced by `bun run backup` and
+# `bun run rescue`, so iCloud Drive must be signed in and finished syncing.
+DOTFILES="${DOTFILES:-$HOME/.dotfiles}"
+ICLOUD="$HOME/Library/Mobile Documents/com~apple~CloudDocs/ts-backups"
+
+if [ ! -d "$ICLOUD" ]; then
+  echo "❌ iCloud backup folder not found: $ICLOUD" >&2
+  echo "   Sign in to iCloud Drive, let it finish syncing, then re-run: bun run recover" >&2
+  exit 1
+fi
+
+echo "==> 1/3  Restoring credentials, .env files and app settings from iCloud..."
+"$DOTFILES/bin/dotsync" restore --overwrite \
+  || echo "    (some restores reported problems — review the output above)"
+
+echo
+echo "==> 2/3  Cloning your repos to their original ~/Code paths and restoring"
+echo "         unpushed commits, stashes, uncommitted changes & untracked files..."
+bun "$DOTFILES/bin/git-sync.ts" recover \
+  || echo "    (git recover reported problems — review the output above)"
+
+echo
+echo "==> 3/3  Cloning any remaining org repos you didn't have locally..."
+sh "$DOTFILES/clone.sh" \
+  || echo "    (clone.sh reported problems — run 'gh auth login' then 'sh clone.sh')"
+
+echo
+echo "✅ Recovery complete. Spot-check a repo or two:  git -C ~/Code/stacks log --oneline -3"
+echo "   Anything flagged 'needs a manual look' above is a diverged branch saved under refs/rescued/*."
