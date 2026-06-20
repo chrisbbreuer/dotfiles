@@ -3,3 +3,4 @@ Brewfile.lock.json
 /pantry_modules
 /pantry.lock
 node_modules
+/pantry
