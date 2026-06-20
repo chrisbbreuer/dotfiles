@@ -56,15 +56,23 @@ ln -sf "$DOTFILES/.denrc" "$HOME/.denrc"                          # Den shell st
 ln -sf "$DOTFILES/.config/den.jsonc" "$HOME/.config/den.jsonc"    # Den declarative config
 rm -f "$HOME/.zshrc"; ln -sf "$DOTFILES/.zshrc" "$HOME/.zshrc"    # zsh fallback
 
-# 6. Application settings (replaces Mackup, via ts-backups).
-#    ts-backups snapshots settings to iCloud (see backups.config.ts). It currently
-#    implements backup only — on a fresh machine, copy the latest snapshot from
-#    iCloud (~/Library/Mobile Documents/com~apple~CloudDocs/ts-backups) back into
-#    place manually, then keep it in sync with:  bunx ts-backups start
-echo "==> App settings are backed up via ts-backups (bunx ts-backups start);"
-echo "    restore the latest snapshot from iCloud manually for now."
+# 6. Restore credentials, .env files and app settings from iCloud (ts-backups).
+#    See .config/backups.ts for what's synced. This runs BEFORE cloning so the
+#    SSH key it restores is available for the git clones in step 7. Requires
+#    iCloud Drive to be signed in and synced; if the snapshots aren't here yet,
+#    we skip and you can run `bun run restore` from ~/.dotfiles later.
+ICLOUD_BK="$HOME/Library/Mobile Documents/com~apple~CloudDocs/ts-backups"
+if [ -d "$ICLOUD_BK" ]; then
+  echo "==> Restoring credentials, .env files and settings from iCloud..."
+  "$DOTFILES/bin/dotsync" restore --overwrite || \
+    echo "    (restore reported problems — review output above)"
+else
+  echo "==> No iCloud ts-backups snapshots found yet."
+  echo "    Sign in to iCloud, let it sync, then run:  cd ~/.dotfiles && bun run restore"
+fi
 
-# 7. Clone repositories.
+# 7. Clone repositories (all of the stacksjs / home-lang / cwcss org repos).
+#    Uses the SSH key restored in step 6; needs gh authenticated for listing.
 sh "$DOTFILES/clone.sh"
 
 # 8. macOS defaults — reloads the shell, so run this last.
@@ -76,6 +84,10 @@ cat <<'EOF'
 All done! Next steps:
   - Open a new terminal and run `den` (or point your terminal app at ~/.local/bin/den).
   - Install GUI apps & fonts from apps.md (Pantry does not manage .app bundles).
+  - If repo cloning was skipped, run `gh auth login` then `sh ~/.dotfiles/clone.sh`.
+  - If credential/.env restore was skipped, run `cd ~/.dotfiles && bun run restore`
+    once iCloud Drive has finished syncing.
+  - Keep your secrets/settings snapshot fresh with:  cd ~/.dotfiles && bun run backup
   - To make Den your login shell, see the opt-in note at the bottom of .zshrc,
     or run:  echo "$HOME/.local/bin/den" | sudo tee -a /etc/shells && chsh -s "$HOME/.local/bin/den"
 EOF
