@@ -5,10 +5,12 @@
   "description": "Chris's macOS dotfiles — provisioning + credential/.env sync for a fresh machine.",
   "scripts": {
     "backup": "./bin/dotsync start",
+    "rescue": "bun bin/git-sync.ts rescue",
+    "prewipe": "bun run backup && bun run rescue",
+    "recover": "./bin/dot-recover",
     "restore": "./bin/dotsync restore --overwrite",
     "restore:safe": "./bin/dotsync restore",
     "list": "./bin/dotsync list",
-    "ssh:backup": "./bin/dotsync start --verbose",
     "ssh:restore": "./bin/dotsync restore --only ssh --overwrite"
   }
 }
