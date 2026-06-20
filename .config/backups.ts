@@ -179,8 +179,10 @@ const config: BackupConfig = {
       compress: true,
       optional: true,
       // Skip `extensions/` — 400MB of reinstallable extension code. We only
-      // want the actual settings (config.json) and AI presets.
-      exclude: ['**/extensions/**', '**/extensions'],
+      // want the actual settings (config.json) and AI presets. The bare name
+      // matters: `extensions` sits at the root of ~/.config/raycast, so a
+      // `**/`-prefixed pattern (which needs a parent slash) wouldn't match it.
+      exclude: ['extensions', '**/extensions'],
     },
 
     // ── Project secrets ─────────────────────────────────────────────────
