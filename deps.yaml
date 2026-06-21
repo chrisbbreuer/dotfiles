@@ -26,3 +26,5 @@ deps:
   gnu.org/grep: ^3.12.0
   crates.io/eza: ^0.21.3
   ziglang.org: 0.17.0-dev.607+456b2ec07
+  anthropic.com/claude-code: ^2.1.185
+  openai.com/codex: ^0.141.0
