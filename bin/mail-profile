@@ -135,7 +135,13 @@ function collectAccounts(env: Record<string, string>): { profile: Account[], int
     if (!email) continue
 
     const provider = providerFor(env, prefix, email)
-    const password = env[`${prefix}_PASSWORD`] ?? ''
+    // Gmail/iCloud app passwords are displayed in readable groups — Gmail with
+    // spaces (`cqmm udvb …`), iCloud with dashes (`abcd-efgh-…`). Strip spaces so
+    // the Gmail one works pasted either way; iCloud's dashes are part of it, kept.
+    const rawPassword = env[`${prefix}_PASSWORD`] ?? ''
+    const password = (provider === 'gmail' || provider === 'icloud')
+      ? rawPassword.replace(/ /g, '')
+      : rawPassword
     const wantInteractive = truthy(env[`${prefix}_INTERACTIVE`])
 
     // Prefer pre-filling: with a password (incl. a Gmail/iCloud app password) the
