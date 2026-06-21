@@ -1,40 +1,47 @@
-# GUI applications — installed by `pantry install` on macOS (Pantry ≥ 0.10.1).
+# GUI applications — installed by `pantry install` on macOS from Pantry's OWN
+# registry (registry.pantry.dev). No Homebrew, no `brew`, no `mas` for casks:
+# Pantry downloads each app's prebuilt artifact for your platform and installs the
+# `.app` directly (see install/native_apps.zig in pantry).
 #
-# Hoisted out of deps.yaml so the package list stays focused on CLI tools.
-# Pantry reads this sibling file automatically alongside deps.yaml and merges
-# the entries. Each entry is one of:
-#   - <slug>                          Homebrew cask of that name (installed
-#                                     natively from Homebrew's public cask JSON)
-#   - { cask: <token> }               explicit Homebrew cask
-#   - { mas: "<id>", name: <App> }    Mac App Store app by its numeric id (no
-#                                     extra tooling — Pantry opens the App Store
-#                                     to install, skipping any already installed)
+# Entries are one of:
+#   - <domain>                        a Pantry app package, e.g. `ghostty.org`
+#                                     (NOT a Homebrew cask slug like `ghostty`)
+#   - { mas: "<id>", name: <App> }    Mac App Store app by id (opens the App Store)
 #
-# Installs are idempotent; Mac App Store installs need the App Store signed in.
-- 1password
-- arc
-- cursor
-- discord
-- docker
-- ghostty            # terminal — point its shell at ~/.local/bin/den
-- github             # GitHub Desktop
-- hiddenbar
-- iina
-- imageoptim
-- insomnia
-- logi-options-plus
-- mediainfo
-- muzzle
-- pearcleaner
-- raycast
-- rewind
-- slack
-- the-unarchiver
-- transmit
-- visual-studio-code
-- vlc
+# Verify any package at registry.pantry.dev/binaries/<domain>/metadata.json or
+# https://pantry.dev/packages. Installs are idempotent.
+- 1password.com
+- arc.net
+- cursor.com
+- discord.com
+- docker.com/desktop
+- ghostty.org            # terminal — point its shell at ~/.local/bin/den
+- github.com/desktop     # GitHub Desktop
+- hiddenbar.app
+- iina.io
+- imageoptim.com
+- insomnia.rest
+- raycast.com
+- slack.com
+- the-unarchiver.com
+- transmit.panic.com
+- code.visualstudio.com
+- vlc.app
+
+# Mac App Store apps — installed via the App Store (need it signed in):
 - { mas: "1402042596", name: AdBlock }
 - { mas: "1462114288", name: Grammarly for Safari }
 - { mas: "1472777122", name: Honey }
 - { mas: "1520333300", name: Wappalyzer }
 - { mas: "1147396723", name: WhatsApp }
+
+# ── Not yet in Pantry's registry ─────────────────────────────────────────────
+# These aren't published as Pantry packages yet, so they're left commented out
+# (an unpublished entry just prints a non-fatal "not in registry" and is skipped).
+# To enable: add a recipe under pantry's packages/ts-pantry/src/recipes/<domain>.ts
+# and publish it, then uncomment here.
+# - logi-options-plus    (Logitech Options+)
+# - mediainfo            (MediaInfo)
+# - muzzle
+# - pearcleaner
+# - rewind

@@ -1,11 +1,12 @@
-# Fonts — installed by `pantry install` on macOS (Pantry ≥ 0.10.1).
-#
-# Hoisted out of deps.yaml; Pantry reads this sibling file automatically
-# alongside deps.yaml and merges the entries. Names are Homebrew font casks.
-- font-inter
-- font-lato
-- font-meslo-lg-nerd-font       # terminal / Den prompt glyphs
-- font-open-sans
-- font-roboto
-- font-source-code-pro
-- font-source-code-pro-for-powerline
+# Fonts — installed by `pantry install` on macOS from Pantry's own registry.
+# Keyed by Pantry font name (NOT a Homebrew cask like `font-inter`). No Homebrew.
+# Verify at registry.pantry.dev/binaries/<name>/metadata.json.
+- inter
+- meslo-lg-nerd-font       # terminal / Den prompt glyphs
+
+# ── Not yet in Pantry's registry ─────────────────────────────────────────────
+# Add a recipe + publish to enable these, then uncomment:
+# - lato
+# - open-sans
+# - roboto
+# - source-code-pro

@@ -5,7 +5,6 @@
 My personal macOS setup. It takes the manual labor out of provisioning a new Mac
 and keeps every machine I use consistent and reproducible.
 
-This setup is **Homebrew-free, oh-my-zsh-free, starship-free and mackup-free**.
 The modern stack:
 
 | Concern | Tool | Replaces |
@@ -13,12 +12,12 @@ The modern stack:
 | Shell | [**Den**](https://github.com/stacksjs/den) | zsh + oh-my-zsh |
 | Prompt | Den native prompt (`.config/den.jsonc`) | starship |
 | Shell plugins | Den native features | zsh-autosuggestions, zsh-syntax-highlighting, fast-syntax-highlighting, zsh-autocomplete |
-| CLI tools, GUI apps, fonts **+ Zig toolchain** | [**Pantry**](https://github.com/pantry-pm/pantry) (`deps.yaml` + `apps.yaml`/`fonts.yaml`) | Homebrew `Brewfile` + casks |
+| CLI tools, GUI apps, fonts, other deps | [**Pantry**](https://github.com/pantry-pm/pantry) (`deps.yaml` + `apps.yaml`/`fonts.yaml`) | Homebrew `Brewfile` + casks |
 | Credentials, `.env` & app-settings sync | [**ts-backups**](https://github.com/stacksjs/ts-backups) (`.config/backups.ts` → iCloud) | mackup |
 
-Everything Pantry can install — including **Zig**, Den's build toolchain — is
-declared across [`deps.yaml`](./deps.yaml) (CLI tools + Zig) and the sibling
-[`apps.yaml`](./apps.yaml) / [`fonts.yaml`](./fonts.yaml) (GUI apps + fonts), all
+Everything Pantry can install — including Zig, Bun, Den's build toolchain — is
+declared across [`deps.yaml`](./deps.yaml) _(CLI tools + Zig & more)_ and the sibling
+[`apps.yaml`](./apps.yaml) / [`fonts.yaml`](./fonts.yaml) _(GUI apps + fonts)_, all
 installed with a single `pantry install`.
 
 ## How Den is configured
@@ -47,7 +46,7 @@ of truth — no duplicated `$PATH` or alias lists between Den and zsh.
 | [`env.sh`](./env.sh) | Environment + `$PATH`, shared by both shells (POSIX-sh) |
 | [`aliases.sh`](./aliases.sh) | Aliases, shared by both shells (POSIX-sh) |
 | [`deps.yaml`](./deps.yaml) | CLI dependencies installed by Pantry (incl. Zig); uses the `deps:` shorthand |
-| [`apps.yaml`](./apps.yaml) | GUI apps Pantry installs on macOS (Homebrew casks + Mac App Store) |
+| [`apps.yaml`](./apps.yaml) | GUI apps Pantry installs on macOS (Pantry registry domains + Mac App Store) |
 | [`fonts.yaml`](./fonts.yaml) | Fonts Pantry installs on macOS |
 | [`.config/backups.ts`](./.config/backups.ts) | What gets synced to iCloud: credentials, project `.env`s, app settings (ts-backups) |
 | [`bin/dotsync`](./bin/dotsync) | Runs ts-backups (from source) against `.config/backups.ts` |
@@ -120,9 +119,10 @@ of truth — no duplicated `$PATH` or alias lists between Den and zsh.
 
 > The GUI apps and fonts are installed by `pantry install` in step 4 — the lists
 > live in [`apps.yaml`](./apps.yaml) and [`fonts.yaml`](./fonts.yaml), which Pantry
-> reads automatically alongside `deps.yaml`. Pantry installs casks and fonts
-> **natively** (from Homebrew's public cask JSON — no `brew` binary needed), so
-> the core setup needs no Homebrew. **Mac App Store** apps (the `mas:` entries)
+> reads automatically alongside `deps.yaml`. Apps and fonts come from **Pantry's
+> own registry** (`registry.pantry.dev`) — each is a Pantry package keyed by
+> domain (e.g. `ghostty.org`), downloaded and installed directly. **No Homebrew,
+> no `brew`, nothing third-party.** **Mac App Store** apps (the `mas:` entries)
 > need no extra tooling either — Pantry has built-in App Store support (the role
 > [`mas`](https://github.com/mas-cli/mas) plays elsewhere): it skips any app
 > already installed and opens the App Store to the rest for a one-click install.
@@ -143,9 +143,10 @@ chsh -s "$HOME/.local/bin/den"
 ## Day-to-day
 
 - **Install a CLI tool:** add it under `deps:` in `deps.yaml`, then `pantry install`.
-- **Install a GUI app or font:** add a line to `apps.yaml` (`- cursor` for a
-  Homebrew cask of that name, or `{ mas: "<id>", name: <App> }` for a Mac App
-  Store app) or `fonts.yaml`, then `pantry install`.
+- **Install a GUI app or font:** add a line to `apps.yaml` (a Pantry domain like
+  `- cursor.com`, or `{ mas: "<id>", name: <App> }` for a Mac App Store app) or
+  `fonts.yaml` (e.g. `- inter`), then `pantry install`. Verify a package exists at
+  `registry.pantry.dev/binaries/<domain>/metadata.json`.
 - **Sync a new secret/setting:** add it (or a new app's config) to
   `.config/backups.ts`, then `bun run backup`.
 - **Add an alias:** edit `aliases.sh` (loaded by both shells), then `reloadshell`.
