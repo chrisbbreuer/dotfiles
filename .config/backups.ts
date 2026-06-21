@@ -185,6 +185,47 @@ const config: BackupConfig = {
       exclude: ['extensions', '**/extensions'],
     },
 
+    // ── Claude Code config & per-project memory ─────────────────────────
+    // ~/.claude is ~2GB, almost all of it regenerable session data
+    // (file-history, projects/<slug> transcripts, caches). We keep only the
+    // irreplaceable bits: settings, any custom commands/agents, and the
+    // per-project memory dirs (projects/<slug>/memory/**, ~1.4MB total).
+    {
+      name: 'claude',
+      path: join(HOME, '.claude'),
+      compress: true,
+      optional: true,
+      // Whitelist: only these are copied. Memory lives under projects/<slug>/,
+      // so we let that tree be walked but match only memory/** inside it.
+      include: [
+        'settings.json',
+        'CLAUDE.md',
+        'commands/**',
+        'agents/**',
+        '**/memory/**',
+      ],
+      // Prune the heavy, regenerable trees so we never descend into them. The
+      // bare name matters: these sit at the top of ~/.claude, so a `**/`-
+      // prefixed pattern (which needs a parent slash) wouldn't match them.
+      exclude: [
+        'file-history',
+        'shell-snapshots',
+        'paste-cache',
+        'image-cache',
+        'cache',
+        'telemetry',
+        'session-env',
+        'sessions',
+        'tasks',
+        'plans',
+        'backups',
+        'plugins',
+        'debug',
+        'ide',
+        'statsig',
+      ].flatMap(d => [d, `**/${d}`]),
+    },
+
     // ── Project secrets ─────────────────────────────────────────────────
     // Every real .env across ~/Code (recursively), preserving each file's
     // relative path on restore. Tracked-in-git example files are skipped —

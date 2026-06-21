@@ -211,6 +211,9 @@ run it by hand if iCloud wasn't synced yet at provision time.
 - **Git identity** — `~/.gitconfig`, `~/.config/git`.
 - **App settings** — VS Code / Cursor `settings.json`+`keybindings.json`+snippets,
   `~/.config/zed`, `~/.config/raycast` (extensions excluded).
+- **Claude Code** — `~/.claude` settings, any custom commands/agents, and your
+  per-project memory (`projects/<slug>/memory/**`); the ~2GB of regenerable
+  session data (transcripts, file-history, caches) is excluded.
 - **Project secrets** — every real `.env` / `.env.*` under `~/Code` (recursively,
   paths preserved; `.env.example` and friends skipped).
 
