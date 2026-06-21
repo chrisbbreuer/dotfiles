@@ -34,10 +34,10 @@ export PATH="$HOME/.local/bin:$HOME/.local/share/pantry/global/bin:$HOME/.local/
 # 3. ALL global dependencies via Pantry — bun, git, gh, eza, coreutils, grep,
 #    bash, and Zig (Den's build toolchain) from deps.yaml, plus the GUI apps and
 #    fonts from apps.yaml / fonts.yaml (Pantry reads those siblings automatically).
-#    Pantry >= 0.10.0 installs everything NATIVELY — no Homebrew, no mas. Casks and
-#    fonts come straight from Pantry/Homebrew's public JSON; Mac App Store apps
-#    open in the App Store for a one-click install (Pantry uses `mas` only if it
-#    already happens to be present, but never requires it).
+#    Pantry installs everything NATIVELY — no Homebrew, no mas, no extra tooling.
+#    Casks and fonts come straight from Pantry/Homebrew's public JSON; Mac App
+#    Store apps open in the App Store for a one-click install (already-installed
+#    ones are skipped).
 echo "==> Installing all dependencies via Pantry..."
 ( cd "$DOTFILES" && pantry install ) \
   || echo "    WARNING: 'pantry install' reported errors. CLI tools should still be installed — continuing."
