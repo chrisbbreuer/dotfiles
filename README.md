@@ -52,7 +52,7 @@ of truth — no duplicated `$PATH` or alias lists between Den and zsh.
 | [`.config/backups.ts`](./.config/backups.ts) | What gets synced to iCloud: credentials, project `.env`s, app settings (ts-backups) |
 | [`bin/dotsync`](./bin/dotsync) | Runs ts-backups (from source) against `.config/backups.ts` |
 | [`bin/git-sync.ts`](./bin/git-sync.ts) | Rescues/recovers local-only git work (unpushed commits, stashes, uncommitted, untracked) |
-| [`bin/dot-recover`](./bin/dot-recover) | One-shot new-machine recovery: secrets + repos + git work |
+| [`bin/dot-recover`](./bin/dot-recover) | One-shot new-machine recovery: secrets + repos + git work + mail accounts |
 | [`bin/mail-profile`](./bin/mail-profile) | Generates a Mail.app config profile (`.mobileconfig`) from a `.env` of mail creds |
 | [`mail-accounts.env.example`](./mail-accounts.env.example) | Template for the mail-account credentials `bin/mail-profile` reads |
 | [`package.json`](./package.json) | `bun run backup` / `rescue` / `recover` / `prewipe` / `mail` scripts |
@@ -207,7 +207,8 @@ cd ~/.dotfiles && bun run recover
 `recover` ([`bin/dot-recover`](./bin/dot-recover)) does the whole thing: restores
 credentials/`.env`s/settings, clones **every repo back to its original `~/Code`
 path** and replays your unpushed commits, stashes, uncommitted changes and
-untracked files, then clones any remaining org repos. `fresh.sh` calls it for you;
+untracked files, clones any remaining org repos, then sets up your **mail
+accounts** (see [Mail accounts](#mail-accounts)). `fresh.sh` calls it for you;
 run it by hand if iCloud wasn't synced yet at provision time.
 
 ### What's covered (secrets & settings)
