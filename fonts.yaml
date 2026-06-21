@@ -2,12 +2,8 @@
 # Keyed by Pantry font name (NOT a Homebrew cask like `font-inter`). No Homebrew.
 # Verify at registry.pantry.dev/binaries/<name>/metadata.json.
 - inter
+- lato
 - meslo-lg-nerd-font       # terminal / Den prompt glyphs
-
-# ── Being published to Pantry's registry ────────────────────────────────────
-# Recipes added (download zip → extract .ttf/.otf) and being published; uncomment
-# each once its metadata.json resolves:
-# - roboto              # googlefonts/roboto release zip
-# - lato                # latofonts.com Lato2OFL.zip
-# - open-sans           # Google Fonts download zip
-# - source-code-pro     # Adobe / Google Fonts zip
+- open-sans
+- roboto
+- source-code-pro

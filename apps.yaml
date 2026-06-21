@@ -1,7 +1,7 @@
 # GUI applications — installed by `pantry install` on macOS from Pantry's OWN
-# registry (registry.pantry.dev). No Homebrew, no `brew`, no `mas` for casks:
-# Pantry downloads each app's prebuilt artifact for your platform and installs the
-# `.app` directly (see install/native_apps.zig in pantry).
+# registry (registry.pantry.dev). No Homebrew, no `brew`: Pantry downloads each
+# app's prebuilt artifact for your platform and installs the `.app` directly
+# (see install/native_apps.zig in pantry).
 #
 # Entries are one of:
 #   - <domain>                        a Pantry app package, e.g. `ghostty.org`
@@ -11,21 +11,25 @@
 # Verify any package at registry.pantry.dev/binaries/<domain>/metadata.json or
 # https://pantry.dev/packages. Installs are idempotent.
 - 1password.com
-- arc.net
+- code.visualstudio.com
 - cursor.com
+- diabrowser.com         # Dia (The Browser Company) — used instead of Arc
 - discord.com
-- orbstack.dev           # OrbStack (Docker/Linux VMs) — used instead of Docker Desktop
 - ghostty.org            # terminal — point its shell at ~/.local/bin/den
 - github.com/desktop     # GitHub Desktop
 - hiddenbar.app
 - iina.io
 - imageoptim.com
 - insomnia.rest
+- logitech.com/options-plus  # Logi Options+ — installs the installer app; run it once
+- mediaarea.net          # MediaInfo
+- muzzleapp.com          # Muzzle
+- orbstack.dev           # OrbStack (Docker/Linux VMs) — used instead of Docker Desktop
+- pearcleaner.app
 - raycast.com
 - slack.com
 - the-unarchiver.com
 - transmit.panic.com
-- code.visualstudio.com
 - vlc.app
 
 # Mac App Store apps — installed via the App Store (need it signed in):
@@ -35,15 +39,7 @@
 - { mas: "1520333300", name: Wappalyzer }
 - { mas: "1147396723", name: WhatsApp }
 
-# ── Being published to Pantry's registry ────────────────────────────────────
-# Recipes added (download URL + extract) and being published to registry.pantry.dev;
-# uncomment each once its metadata.json resolves. Domains:
-# - mediaarea.net          # MediaInfo  (mediaarea.net DMG)
-# - muzzleapp.com          # Muzzle     (muzzleapp.com zip)
-# - rewind.ai              # Rewind     (download.rewind.ai DMG)
-# - pearcleaner.app        # Pearcleaner (GitHub release zip)
-#
-# Genuine exception — NOT a drop-in app:
-# - logi-options-plus is shipped as an installer (installs driver/system
-#   components), so it can't be published as a /Applications bundle. Install it
-#   manually from https://www.logitech.com/software/logi-options-plus.html
+# Not included:
+# - arc.net   — dropped in favour of Dia (above).
+# - rewind    — Rewind.ai was sunset (the app/download no longer exists); its
+#               successor is Limitless. Add it back if a download URL returns.
