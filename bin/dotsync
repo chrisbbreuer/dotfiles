@@ -1,6 +1,6 @@
 #!/bin/sh
 # dotsync — back up / restore credentials, .env files and app settings via
-# ts-backups, using ~/.dotfiles/backups.config.ts.
+# ts-backups, using ~/.dotfiles/.config/backups.ts.
 #
 # ts-backups is not published to npm and its dist isn't committed, so we run it
 # straight from source with bun. This wrapper finds (or clones) that source and

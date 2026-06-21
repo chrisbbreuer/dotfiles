@@ -1,7 +1,7 @@
 #!/bin/sh
 # fresh.sh — set up a brand-new Mac from these dotfiles.
 #
-# Modern stack (no Homebrew / oh-my-zsh / starship / mackup):
+# Modern stack
 #   - Pantry   -> all CLI tooling incl. Zig    (replaces Homebrew Brewfile)
 #   - Den      -> the shell + native prompt/plugins (replaces zsh/oh-my-zsh/starship)
 #   - ts-backups -> app-settings backup/restore  (replaces Mackup)

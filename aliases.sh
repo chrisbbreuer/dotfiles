@@ -2,8 +2,6 @@
 alias copyssh="pbcopy < $HOME/.ssh/id_ed25519.pub"
 alias reloadshell="exec $SHELL"
 alias reloaddns="dscacheutil -flushcache && sudo killall -HUP mDNSResponder"
-# alias ls="/opt/homebrew/opt/coreutils/libexec/gnubin/ls" # Removed - using Launchpad coreutils instead
-# alias ll="/opt/homebrew/opt/coreutils/libexec/gnubin/ls -AhlFo --color --group-directories-first"
 alias ll='eza --long --header --group --git --modified --color-scale --group-directories-first -a'
 alias pstorm='open -a /Applications/PhpStorm.app "`pwd`"'
 alias code='open -a "/Applications/Visual Studio Code.app" "`pwd`"'
