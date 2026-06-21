@@ -67,8 +67,9 @@ rm -f "$HOME/.zshrc"; ln -sf "$DOTFILES/.zshrc" "$HOME/.zshrc"    # zsh fallback
 # 6. Recover EVERYTHING from iCloud in one shot: credentials, .env files and app
 #    settings, then every repo cloned back to its original ~/Code path with all
 #    local-only git work (unpushed commits, stashes, uncommitted, untracked),
-#    then any remaining org repos. See bin/dot-recover. Requires iCloud Drive to
-#    be signed in and synced; if it isn't here yet we skip with instructions.
+#    then any remaining org repos, then your mail accounts (opens the generated
+#    profile + Internet Accounts to finish). See bin/dot-recover. Requires iCloud
+#    Drive to be signed in and synced; if it isn't here yet we skip with instructions.
 ICLOUD_BK="$HOME/Library/Mobile Documents/com~apple~CloudDocs/ts-backups"
 if [ -d "$ICLOUD_BK" ]; then
   "$DOTFILES/bin/dot-recover" || echo "    (recover reported problems — review output above)"
@@ -87,9 +88,12 @@ All done! Next steps:
   - Open a new terminal and run `den` (or point your terminal app at ~/.local/bin/den).
   - GUI apps & fonts come from apps.yaml / fonts.yaml (installed natively by
     'pantry install' above; Mac App Store apps open in the App Store to install).
+  - Mail: recovery set up your accounts. Approve the staged profile (System
+    Settings → General → Device Management) and sign into Gmail/iCloud in the
+    Internet Accounts window it opened. (Re-run anytime: `bun run mail`.)
   - If recovery was skipped (iCloud not synced) or gh wasn't authed, finish with:
         gh auth login          # if cloning needs it
-        cd ~/.dotfiles && bun run recover
+        cd ~/.dotfiles && bun run recover   # also sets up mail
   - Keep your off-machine copy fresh before the NEXT wipe with:
         cd ~/.dotfiles && bun run prewipe      # = backup (secrets) + rescue (git work)
   - To make Den your login shell, see the opt-in note at the bottom of .zshrc,

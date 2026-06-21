@@ -107,7 +107,9 @@ of truth — no duplicated `$PATH` or alias lists between Den and zsh.
      [Backups & restore](#backups--restore)): credentials, project `.env`s and app
      settings, then every repo cloned back to its original `~/Code` path with all
      your local-only git work (unpushed commits, stashes, uncommitted, untracked),
-     then any remaining org repos,
+     then any remaining org repos, then your **mail accounts** (generates the
+     config profile and opens it + Internet Accounts to finish — see
+     [Mail accounts](#mail-accounts)),
    - apply macOS defaults (`.macos`).
 
    > Recovery needs iCloud signed in and `gh` authenticated. If either isn't ready,
@@ -266,8 +268,9 @@ bun run mail                                               # generates + opens t
 Each account is one block in the `.env` (see
 [`mail-accounts.env.example`](./mail-accounts.env.example)); it's synced to iCloud
 by ts-backups (the `mail-accounts` entry in `.config/backups.ts`) and **never**
-committed to this repo. On a new machine `bun run recover` restores it, then
-`bun run mail` recreates the accounts. There are two kinds of account:
+committed to this repo. On a new machine `bun run recover` (and `fresh.sh`, which
+calls it) restores this file and then runs `bun run mail` for you automatically —
+no extra step. There are two kinds of account:
 
 - **Pre-filled** (a password is given) — custom IMAP/SMTP, or Gmail with an
   **app password**. These go into the configuration profile and set themselves
