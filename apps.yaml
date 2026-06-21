@@ -1,0 +1,38 @@
+# GUI applications — installed by `pantry install` on macOS (Pantry ≥ 0.10.0).
+#
+# Hoisted out of deps.yaml so the package list stays focused on CLI tools.
+# Pantry reads this sibling file automatically alongside deps.yaml and merges
+# the entries. Each entry is one of:
+#   - <slug>                          Homebrew cask of that name (installed
+#                                     natively from Homebrew's public cask JSON)
+#   - { cask: <token> }               explicit Homebrew cask
+#   - { mas: "<id>", name: <App> }    Mac App Store app (needs the `mas` CLI)
+#
+# Installs are idempotent; Mac App Store apps need the App Store signed in.
+- 1password
+- arc
+- cursor
+- discord
+- docker
+- ghostty            # terminal — point its shell at ~/.local/bin/den
+- github             # GitHub Desktop
+- hiddenbar
+- iina
+- imageoptim
+- insomnia
+- logi-options-plus
+- mediainfo
+- muzzle
+- pearcleaner
+- raycast
+- rewind
+- slack
+- the-unarchiver
+- transmit
+- visual-studio-code
+- vlc
+- { mas: "1402042596", name: AdBlock }
+- { mas: "1462114288", name: Grammarly for Safari }
+- { mas: "1472777122", name: Honey }
+- { mas: "1520333300", name: Wappalyzer }
+- { mas: "1147396723", name: WhatsApp }

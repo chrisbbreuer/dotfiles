@@ -1,0 +1,11 @@
+# Fonts — installed by `pantry install` on macOS (Pantry ≥ 0.10.0).
+#
+# Hoisted out of deps.yaml; Pantry reads this sibling file automatically
+# alongside deps.yaml and merges the entries. Names are Homebrew font casks.
+- font-inter
+- font-lato
+- font-meslo-lg-nerd-font       # terminal / Den prompt glyphs
+- font-open-sans
+- font-roboto
+- font-source-code-pro
+- font-source-code-pro-for-powerline

@@ -31,19 +31,20 @@ if ! command -v pantry >/dev/null 2>&1; then
 fi
 export PATH="$HOME/.local/bin:$HOME/.local/share/pantry/global/bin:$HOME/.local/share/pantry/global/pantry_modules/.bin:$PATH"
 
-# 3. ALL global dependencies (see deps.yaml) via Pantry — bun, git, gh, eza,
-#    coreutils, grep, bash, and Zig (Den's build toolchain).
-#    NB: the CLI tools are pantry-native, but deps.yaml's `apps:`/`fonts:` shell
-#    out to Homebrew casks + `mas`. Those need Homebrew installed and the App
-#    Store signed in; if they're absent only the GUI apps are skipped, so don't
-#    let that abort the critical CLI/toolchain install below.
-if ! command -v brew >/dev/null 2>&1; then
-  echo "    (Homebrew not found — GUI apps/fonts in deps.yaml will be skipped."
-  echo "     Install it from https://brew.sh and re-run 'pantry install' for the apps.)"
+# 3. ALL global dependencies via Pantry — bun, git, gh, eza, coreutils, grep,
+#    bash, and Zig (Den's build toolchain) from deps.yaml, plus the GUI apps and
+#    fonts from apps.yaml / fonts.yaml (Pantry reads those siblings automatically).
+#    Pantry >= 0.10.0 installs casks and fonts NATIVELY (no Homebrew needed); only
+#    Mac App Store apps (the `mas:` entries) need the `mas` CLI + a signed-in App
+#    Store. Missing `mas` only skips those App Store apps, so don't let it abort
+#    the critical CLI/toolchain install below.
+if ! command -v mas >/dev/null 2>&1; then
+  echo "    (mas not found — Mac App Store apps will be skipped. Install with"
+  echo "     'pantry install mas', sign in to the App Store, then re-run 'pantry install'.)"
 fi
 echo "==> Installing all dependencies via Pantry..."
 ( cd "$DOTFILES" && pantry install ) \
-  || echo "    WARNING: 'pantry install' reported errors (often just the GUI apps needing Homebrew). CLI tools should still be installed — continuing."
+  || echo "    WARNING: 'pantry install' reported errors (often just App Store apps needing 'mas'). CLI tools should still be installed — continuing."
 
 # Sanity check: Den needs Zig 0.17-dev. If Pantry's registry hasn't yet published
 # a recent enough dev build, surface it clearly rather than failing cryptically.
@@ -88,8 +89,8 @@ cat <<'EOF'
 
 All done! Next steps:
   - Open a new terminal and run `den` (or point your terminal app at ~/.local/bin/den).
-  - GUI apps & fonts come from the apps:/fonts: sections of deps.yaml (installed
-    by 'pantry install' above, if Homebrew/mas are present).
+  - GUI apps & fonts come from apps.yaml / fonts.yaml (installed natively by
+    'pantry install' above; Mac App Store apps need the 'mas' CLI).
   - If recovery was skipped (iCloud not synced) or gh wasn't authed, finish with:
         gh auth login          # if cloning needs it
         cd ~/.dotfiles && bun run recover

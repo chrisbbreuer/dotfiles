@@ -1,23 +1,23 @@
-# Dependencies — managed by Pantry (https://github.com/stacksjs/pantry)
+# Dependencies — managed by Pantry (https://github.com/pantry-pm/pantry)
 #
-# Install / sync everything with:  pantry install
+# Install / sync everything with:  pantry install   (Pantry ≥ 0.10.0)
 #
 # Notes:
+#   - `deps:` is Pantry's shorthand for `dependencies:` (both work).
 #   - starship was removed: the prompt is now native to Den (see .config/den.jsonc).
 #   - Zig is Den's build toolchain and is managed by Pantry like everything else.
 #     Den tracks Zig's master branch, so we pin the dev build Den is known to
 #     build against. `pantry install` fetches it from Pantry's registry (Pantry
 #     syncs Zig dev/nightly builds every few hours via its sync-zig-dev workflow).
-#   - GUI apps and fonts are declared in the `apps:` / `fonts:` sections below.
-#     Apps are referenced by their Pantry registry slug; `pantry install`
-#     resolves each to the right source (Homebrew cask or Mac App Store) and
-#     installs the `.app` bundle. The `apps:`/`fonts:` lists below are the catalogue.
+#   - GUI apps and fonts live in sibling files — see ./apps.yaml and ./fonts.yaml.
+#     Pantry reads them automatically alongside this file and installs them on
+#     macOS as part of the same `pantry install`.
 global: true
 
 # ---------------------------------------------------------------------------
 # Command-line tools
 # ---------------------------------------------------------------------------
-dependencies:
+deps:
   bun.sh: ^1.3.14
   git-scm.org: ^2.51.0
   cli.github.com: ^2.73.0
@@ -26,55 +26,3 @@ dependencies:
   gnu.org/grep: ^3.12.0
   crates.io/eza: ^0.21.3
   ziglang.org: 0.17.0-dev.607+456b2ec07
-
-# ---------------------------------------------------------------------------
-# GUI applications — installed by `pantry install` on macOS
-#
-# Each entry is one of:
-#   - <slug>                              Homebrew cask of that name
-#   - { cask: <token> }                   explicit Homebrew cask
-#   - { mas: "<id>", name: <App> }        Mac App Store app (needs `mas`)
-#
-# Pantry reads this section from deps.yaml and shells out to `brew install
-# --cask` / `mas install`.
-# ---------------------------------------------------------------------------
-apps:
-  - 1password
-  - arc
-  - cursor
-  - discord
-  - docker
-  - ghostty            # terminal — point its shell at ~/.local/bin/den
-  - github             # GitHub Desktop
-  - hiddenbar
-  - iina
-  - imageoptim
-  - insomnia
-  - logi-options-plus
-  - mediainfo
-  - muzzle
-  - pearcleaner
-  - raycast
-  - rewind
-  - slack
-  - the-unarchiver
-  - transmit
-  - visual-studio-code
-  - vlc
-  - { mas: "1402042596", name: AdBlock }
-  - { mas: "1462114288", name: Grammarly for Safari }
-  - { mas: "1472777122", name: Honey }
-  - { mas: "1520333300", name: Wappalyzer }
-  - { mas: "1147396723", name: WhatsApp }
-
-# ---------------------------------------------------------------------------
-# Fonts (Homebrew cask font names)
-# ---------------------------------------------------------------------------
-fonts:
-  - font-inter
-  - font-lato
-  - font-meslo-lg-nerd-font       # terminal / Den prompt glyphs
-  - font-open-sans
-  - font-roboto
-  - font-source-code-pro
-  - font-source-code-pro-for-powerline
