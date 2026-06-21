@@ -270,19 +270,21 @@ Each account is one block in the `.env` (see
 by ts-backups (the `mail-accounts` entry in `.config/backups.ts`) and **never**
 committed to this repo. On a new machine `bun run recover` (and `fresh.sh`, which
 calls it) restores this file and then runs `bun run mail` for you automatically —
-no extra step. There are two kinds of account:
+no extra step.
 
-- **Pre-filled** (a password is given) — custom IMAP/SMTP, or Gmail with an
-  **app password**. These go into the configuration profile and set themselves
-  up. macOS won't install a profile silently on a non-MDM Mac, so `bun run mail`
-  opens it and you approve it once in System Settings → General → Device
-  Management; all pre-filled accounts land from that single click.
-- **Interactive** (no password, or `<PREFIX>_INTERACTIVE=true`) — Gmail via OAuth
-  and **iCloud**. `bun run mail` opens System Settings → Internet Accounts and
-  tells you which to add; you just sign in once (the only password you type).
+Every account is **pre-filled** as long as it has a password — custom IMAP/SMTP
+take a server block; **Gmail and iCloud** just need an email + an **app password**
+(`myaccount.google.com` → App passwords; `account.apple.com` → App-Specific
+Passwords), with their servers preset. All pre-filled accounts go into one
+configuration profile. macOS won't install a profile silently on a non-MDM Mac,
+so `bun run mail` opens it and you approve it once in System Settings → General →
+Device Management — every account lands from that single click, no per-account
+sign-in.
 
-So with custom servers pre-filled and Gmail/iCloud interactive, the whole mail
-setup is one profile-approval click plus signing in to Google and iCloud.
+An account with **no password** (or `<PREFIX>_INTERACTIVE=true`) falls back to a
+one-time interactive sign-in: `bun run mail` opens System Settings → Internet
+Accounts and tells you which to add. Use this only when you can't get an app
+password.
 
 > The generated `.mobileconfig` holds plaintext passwords (written to `$TMPDIR`,
 > `chmod 600`) — delete it once the profile is installed.

@@ -52,11 +52,14 @@ const HOME = homedir()
 const PROFILE_ID = 'com.chrisbreuer.dotfiles.mail'
 
 // Provider presets keyed by an explicit `<PREFIX>_PROVIDER` or the email domain.
+// Server presets so Gmail/iCloud only need an email + an app password to be
+// fully pre-filled (no OAuth, no interactive sign-in).
 const PRESETS: Record<string, { imapHost: string, imapPort: number, smtpHost: string, smtpPort: number }> = {
   gmail: { imapHost: 'imap.gmail.com', imapPort: 993, smtpHost: 'smtp.gmail.com', smtpPort: 587 },
+  icloud: { imapHost: 'imap.mail.me.com', imapPort: 993, smtpHost: 'smtp.mail.me.com', smtpPort: 587 },
 }
 
-// Email domains we deliberately skip (handled by signing into the Apple ID).
+// Email domains recognised as iCloud (for the preset + interactive fallback).
 const ICLOUD_DOMAINS = ['icloud.com', 'me.com', 'mac.com']
 
 interface Account {
@@ -135,15 +138,12 @@ function collectAccounts(env: Record<string, string>): { profile: Account[], int
     const password = env[`${prefix}_PASSWORD`] ?? ''
     const wantInteractive = truthy(env[`${prefix}_INTERACTIVE`])
 
-    // iCloud is always interactive (it rides the Apple ID). Anything explicitly
-    // flagged interactive, or simply given no password, is signed in by hand —
-    // this is how Gmail/iCloud end up "just enter the password once".
-    if (provider === 'icloud') {
-      interactive.push({ email, kind: 'icloud' })
-      continue
-    }
+    // Prefer pre-filling: with a password (incl. a Gmail/iCloud app password) the
+    // account goes into the profile and sets itself up. Only fall back to an
+    // interactive sign-in when there's no password, or it's explicitly forced.
     if (wantInteractive || !password) {
-      interactive.push({ email, kind: provider === 'gmail' ? 'google' : 'manual' })
+      const kind = provider === 'gmail' ? 'google' : provider === 'icloud' ? 'icloud' : 'manual'
+      interactive.push({ email, kind })
       continue
     }
 
