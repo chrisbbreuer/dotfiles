@@ -111,8 +111,19 @@ function providerFor(env: Record<string, string>, prefix: string, email: string)
   return null
 }
 
-function collectAccounts(env: Record<string, string>): Account[] {
-  const accounts: Account[] = []
+/** An account macOS must set up interactively (OAuth / Apple ID) — we can't
+ * pre-seed a password, so we just point the user at the right pane to sign in. */
+interface Interactive {
+  email: string
+  kind: 'google' | 'icloud' | 'manual'
+}
+
+const truthy = (v: string | undefined) => !!v && ['1', 'true', 'yes', 'y', 'on'].includes(v.toLowerCase())
+
+function collectAccounts(env: Record<string, string>): { profile: Account[], interactive: Interactive[] } {
+  const profile: Account[] = []
+  const interactive: Interactive[] = []
+
   for (const key of Object.keys(env)) {
     const m = key.match(/^([A-Z0-9]+)_EMAIL$/)
     if (!m) continue
@@ -121,21 +132,29 @@ function collectAccounts(env: Record<string, string>): Account[] {
     if (!email) continue
 
     const provider = providerFor(env, prefix, email)
+    const password = env[`${prefix}_PASSWORD`] ?? ''
+    const wantInteractive = truthy(env[`${prefix}_INTERACTIVE`])
+
+    // iCloud is always interactive (it rides the Apple ID). Anything explicitly
+    // flagged interactive, or simply given no password, is signed in by hand —
+    // this is how Gmail/iCloud end up "just enter the password once".
     if (provider === 'icloud') {
-      console.error(`• ${email}: iCloud — skipped (set it up via System Settings → Apple ID → iCloud Mail).`)
+      interactive.push({ email, kind: 'icloud' })
       continue
     }
+    if (wantInteractive || !password) {
+      interactive.push({ email, kind: provider === 'gmail' ? 'google' : 'manual' })
+      continue
+    }
+
+    // Password present → a fully pre-filled profile account.
     const preset = provider ? PRESETS[provider] : undefined
-
-    const password = env[`${prefix}_PASSWORD`] ?? ''
-    if (!password) fail(`${prefix}: missing ${prefix}_PASSWORD`)
-
     const imapHost = env[`${prefix}_IMAP_HOST`] ?? preset?.imapHost
     const smtpHost = env[`${prefix}_SMTP_HOST`] ?? preset?.smtpHost
     if (!imapHost) fail(`${prefix}: no ${prefix}_IMAP_HOST and no known provider preset (set ${prefix}_PROVIDER or the host)`)
     if (!smtpHost) fail(`${prefix}: no ${prefix}_SMTP_HOST and no known provider preset`)
 
-    accounts.push({
+    profile.push({
       prefix,
       label: env[`${prefix}_LABEL`] ?? prefix.charAt(0) + prefix.slice(1).toLowerCase(),
       name: env[`${prefix}_NAME`] ?? email,
@@ -148,7 +167,7 @@ function collectAccounts(env: Record<string, string>): Account[] {
       smtpPort: Number(env[`${prefix}_SMTP_PORT`] ?? preset?.smtpPort ?? 587),
     })
   }
-  return accounts
+  return { profile, interactive }
 }
 
 const xml = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
@@ -216,21 +235,42 @@ if (!existsSync(envPath)) {
   fail(`No mail env file at ${envPath}\n  Create one (see bin/mail-profile header or mail-accounts.env.example), or pass a path.`)
 }
 
+const INTERNET_ACCOUNTS = 'x-apple.systempreferences:com.apple.Internet-Accounts-Settings.extension'
+
 const env = parseEnv(readFileSync(envPath, 'utf8'))
-const accounts = collectAccounts(env)
-if (accounts.length === 0) fail('No accounts found (need at least one <PREFIX>_EMAIL).')
+const { profile, interactive } = collectAccounts(env)
+if (profile.length === 0 && interactive.length === 0)
+  fail('No accounts found (need at least one <PREFIX>_EMAIL).')
 
-const outPath = join(tmpdir(), 'mail-accounts.mobileconfig')
-writeFileSync(outPath, buildProfile(accounts), { mode: 0o600 })
-
-console.error(`✓ Wrote profile for ${accounts.length} account(s): ${accounts.map(a => a.email).join(', ')}`)
-console.error(`  ${outPath}`)
-
-if (printOnly) {
-  console.log(outPath)
+// 1. Pre-filled accounts → a configuration profile (servers + passwords).
+if (profile.length > 0) {
+  const outPath = join(tmpdir(), 'mail-accounts.mobileconfig')
+  writeFileSync(outPath, buildProfile(profile), { mode: 0o600 })
+  console.error(`✓ Profile for ${profile.length} account(s): ${profile.map(a => a.email).join(', ')}`)
+  console.error(`  ${outPath}`)
+  if (printOnly) {
+    console.log(outPath)
+  }
+  else {
+    spawnSync('open', [outPath], { stdio: 'ignore' })
+    console.error('  → approve it: System Settings → General → Device Management, then delete the file (it holds passwords).')
+  }
 }
-else {
-  spawnSync('open', [outPath], { stdio: 'ignore' })
-  console.error('\nNext: System Settings → General → Device Management → install the staged profile.')
-  console.error('Then delete the file above — it holds your passwords in plaintext.')
+
+// 2. Interactive accounts (Gmail OAuth / iCloud / Apple ID) → just open Internet
+//    Accounts and tell the user which to add. The only manual password entry.
+if (interactive.length > 0) {
+  console.error(`\nSign in to these by hand (one password each):`)
+  for (const a of interactive) {
+    const how = a.kind === 'google'
+      ? 'add a Google account'
+      : a.kind === 'icloud'
+        ? 'add an iCloud account (or sign into this Apple ID)'
+        : 'add the account manually'
+    console.error(`  • ${a.email} — ${how}`)
+  }
+  if (!printOnly) {
+    spawnSync('open', [INTERNET_ACCOUNTS], { stdio: 'ignore' })
+    console.error('  (opened System Settings → Internet Accounts)')
+  }
 }

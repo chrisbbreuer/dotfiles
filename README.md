@@ -263,22 +263,26 @@ cp mail-accounts.env.example ~/.config/mail-accounts.env   # then fill it in
 bun run mail                                               # generates + opens the profile
 ```
 
-The `.env` is one block per account (see
+Each account is one block in the `.env` (see
 [`mail-accounts.env.example`](./mail-accounts.env.example)); it's synced to iCloud
 by ts-backups (the `mail-accounts` entry in `.config/backups.ts`) and **never**
 committed to this repo. On a new machine `bun run recover` restores it, then
-`bun run mail` recreates the accounts.
+`bun run mail` recreates the accounts. There are two kinds of account:
 
-Caveats:
+- **Pre-filled** (a password is given) — custom IMAP/SMTP, or Gmail with an
+  **app password**. These go into the configuration profile and set themselves
+  up. macOS won't install a profile silently on a non-MDM Mac, so `bun run mail`
+  opens it and you approve it once in System Settings → General → Device
+  Management; all pre-filled accounts land from that single click.
+- **Interactive** (no password, or `<PREFIX>_INTERACTIVE=true`) — Gmail via OAuth
+  and **iCloud**. `bun run mail` opens System Settings → Internet Accounts and
+  tells you which to add; you just sign in once (the only password you type).
 
-- **One approval click.** On a non-MDM Mac macOS won't install a profile
-  silently — `bun run mail` opens it and you approve once in System Settings →
-  General → Device Management. All accounts land from that single click.
-- **Provider auth.** Custom IMAP/SMTP and Gmail (with an **app password**) are
-  fully prefilled. **iCloud Mail** is skipped — it comes with signing into your
-  Apple ID. OAuth-only providers would still need an interactive sign-in.
-- The generated `.mobileconfig` holds plaintext passwords (written to `$TMPDIR`,
-  `chmod 600`) — delete it once the profile is installed.
+So with custom servers pre-filled and Gmail/iCloud interactive, the whole mail
+setup is one profile-approval click plus signing in to Google and iCloud.
+
+> The generated `.mobileconfig` holds plaintext passwords (written to `$TMPDIR`,
+> `chmod 600`) — delete it once the profile is installed.
 
 ## Cleaning your old Mac (optional)
 
