@@ -4,9 +4,10 @@
 - inter
 - meslo-lg-nerd-font       # terminal / Den prompt glyphs
 
-# ── Not yet in Pantry's registry ─────────────────────────────────────────────
-# Add a recipe + publish to enable these, then uncomment:
-# - lato
-# - open-sans
-# - roboto
-# - source-code-pro
+# ── Being published to Pantry's registry ────────────────────────────────────
+# Recipes added (download zip → extract .ttf/.otf) and being published; uncomment
+# each once its metadata.json resolves:
+# - roboto              # googlefonts/roboto release zip
+# - lato                # latofonts.com Lato2OFL.zip
+# - open-sans           # Google Fonts download zip
+# - source-code-pro     # Adobe / Google Fonts zip
