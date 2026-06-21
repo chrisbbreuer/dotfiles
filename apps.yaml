@@ -14,7 +14,7 @@
 - arc.net
 - cursor.com
 - discord.com
-- docker.com/desktop
+- orbstack.dev           # OrbStack (Docker/Linux VMs) — used instead of Docker Desktop
 - ghostty.org            # terminal — point its shell at ~/.local/bin/den
 - github.com/desktop     # GitHub Desktop
 - hiddenbar.app
