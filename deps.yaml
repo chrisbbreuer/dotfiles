@@ -11,7 +11,7 @@
 #   - GUI apps and fonts are declared in the `apps:` / `fonts:` sections below.
 #     Apps are referenced by their Pantry registry slug; `pantry install`
 #     resolves each to the right source (Homebrew cask or Mac App Store) and
-#     installs the `.app` bundle. See ./apps.md for the catalogue and notes.
+#     installs the `.app` bundle. The `apps:`/`fonts:` lists below are the catalogue.
 global: true
 
 # ---------------------------------------------------------------------------
@@ -36,7 +36,7 @@ dependencies:
 #   - { mas: "<id>", name: <App> }        Mac App Store app (needs `mas`)
 #
 # Pantry reads this section from deps.yaml and shells out to `brew install
-# --cask` / `mas install`. See ./apps.md for the catalogue and notes.
+# --cask` / `mas install`.
 # ---------------------------------------------------------------------------
 apps:
   - 1password

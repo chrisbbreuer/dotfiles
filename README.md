@@ -15,7 +15,6 @@ The modern stack:
 | Shell plugins | Den native features | zsh-autosuggestions, zsh-syntax-highlighting, fast-syntax-highlighting, zsh-autocomplete |
 | CLI tools, GUI apps, fonts **+ Zig toolchain** | [**Pantry**](https://github.com/stacksjs/pantry) (`deps.yaml`) | Homebrew `Brewfile` + casks |
 | Credentials, `.env` & app-settings sync | [**ts-backups**](https://github.com/stacksjs/ts-backups) (`.config/backups.ts` → iCloud) | mackup |
-| GUI apps reference | [`apps.md`](./apps.md) (catalogue of the apps Pantry installs) | — |
 
 Everything Pantry can install — including **Zig**, Den's build toolchain — is
 declared in [`deps.yaml`](./deps.yaml) and installed with a single `pantry install`.
@@ -45,8 +44,7 @@ of truth — no duplicated `$PATH` or alias lists between Den and zsh.
 | [`.zshrc`](./.zshrc) | Trimmed **fallback** zsh config with an opt-in `exec den` |
 | [`env.sh`](./env.sh) | Environment + `$PATH`, shared by both shells (POSIX-sh) |
 | [`aliases.sh`](./aliases.sh) | Aliases, shared by both shells (POSIX-sh) |
-| [`deps.yaml`](./deps.yaml) | All CLI dependencies (incl. Zig) installed by Pantry |
-| [`apps.md`](./apps.md) | Catalogue of the GUI apps + fonts Pantry installs (entry → source) |
+| [`deps.yaml`](./deps.yaml) | All dependencies installed by Pantry — CLI tools (incl. Zig) plus the `apps:`/`fonts:` catalogue |
 | [`.config/backups.ts`](./.config/backups.ts) | What gets synced to iCloud: credentials, project `.env`s, app settings (ts-backups) |
 | [`bin/dotsync`](./bin/dotsync) | Runs ts-backups (from source) against `.config/backups.ts` |
 | [`bin/git-sync.ts`](./bin/git-sync.ts) | Rescues/recovers local-only git work (unpushed commits, stashes, uncommitted, untracked) |
@@ -112,8 +110,9 @@ of truth — no duplicated `$PATH` or alias lists between Den and zsh.
 
 5. Restart to finalize.
 
-> The GUI apps and fonts are installed by `pantry install` in step 4 — see
-> [`apps.md`](./apps.md) for the catalogue. Pantry installs the CLI tools natively
+> The GUI apps and fonts are installed by `pantry install` in step 4 — the full
+> list is the `apps:`/`fonts:` sections of [`deps.yaml`](./deps.yaml). Pantry
+> installs the CLI tools natively
 > but shells out to **Homebrew** for the `apps:`/`fonts:` casks and to `mas` for
 > Mac App Store apps, so those need [Homebrew](https://brew.sh) present and the
 > App Store signed in (`mas account`); casks may prompt for your password. The

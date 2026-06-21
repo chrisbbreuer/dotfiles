@@ -1,7 +1,7 @@
 #!/bin/sh
 # fresh.sh — set up a brand-new Mac from these dotfiles.
 #
-# Modern stack
+# Modern stack (no Homebrew / oh-my-zsh / starship / mackup):
 #   - Pantry   -> all CLI tooling incl. Zig    (replaces Homebrew Brewfile)
 #   - Den      -> the shell + native prompt/plugins (replaces zsh/oh-my-zsh/starship)
 #   - ts-backups -> app-settings backup/restore  (replaces Mackup)
@@ -88,7 +88,8 @@ cat <<'EOF'
 
 All done! Next steps:
   - Open a new terminal and run `den` (or point your terminal app at ~/.local/bin/den).
-  - Install GUI apps & fonts from apps.md (Pantry does not manage .app bundles).
+  - GUI apps & fonts come from the apps:/fonts: sections of deps.yaml (installed
+    by 'pantry install' above, if Homebrew/mas are present).
   - If recovery was skipped (iCloud not synced) or gh wasn't authed, finish with:
         gh auth login          # if cloning needs it
         cd ~/.dotfiles && bun run recover
