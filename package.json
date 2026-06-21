@@ -8,6 +8,7 @@
     "rescue": "bun bin/git-sync.ts rescue",
     "prewipe": "bun run backup && bun run rescue",
     "recover": "./bin/dot-recover",
+    "mail": "./bin/mail-profile",
     "restore": "./bin/dotsync restore --overwrite",
     "restore:safe": "./bin/dotsync restore",
     "list": "./bin/dotsync list",

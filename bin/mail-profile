@@ -1,0 +1,236 @@
+#!/usr/bin/env bun
+/**
+ * mail-profile — generate a macOS configuration profile (.mobileconfig) that
+ * sets up your Mail.app accounts from a .env of credentials, then open it for
+ * the (one-time) approval click.
+ *
+ *   bun run mail                      # uses ~/.config/mail-accounts.env
+ *   ./bin/mail-profile path/to.env    # explicit env file
+ *   MAIL_ENV=… ./bin/mail-profile     # or via env var
+ *   ./bin/mail-profile --print        # write + print the path, don't open
+ *
+ * Why a profile? macOS has no supported CLI to create a Mail account directly;
+ * a `com.apple.mail.managed` configuration profile is the clean, scriptable way
+ * to define IMAP/SMTP accounts (servers, ports, SSL, username, password). On a
+ * non-MDM Mac the profile can't install silently — macOS stages it and you
+ * approve it once in System Settings → General → Device Management. All accounts
+ * land together from that single click.
+ *
+ * The generated .mobileconfig contains plaintext passwords — treat it like the
+ * .env: it rides your iCloud backup, never this public repo. Delete it after the
+ * profile is installed.
+ *
+ * .env format — one block per account, grouped by an uppercase PREFIX. The
+ * presence of `<PREFIX>_EMAIL` defines an account:
+ *
+ *   # Custom IMAP/SMTP (full control)
+ *   WORK_EMAIL=chris@company.com
+ *   WORK_PASSWORD=app-or-account-password
+ *   WORK_NAME=Chris Breuer            # display name (optional)
+ *   WORK_IMAP_HOST=imap.company.com
+ *   WORK_IMAP_PORT=993               # optional, default 993
+ *   WORK_SMTP_HOST=smtp.company.com
+ *   WORK_SMTP_PORT=587               # optional, default 587
+ *   WORK_USERNAME=chris@company.com  # optional, defaults to the email
+ *
+ *   # Gmail / Google Workspace — servers are preset; needs an APP PASSWORD
+ *   # (Google account → Security → 2-Step Verification → App passwords), since
+ *   # plain-password IMAP is disabled. Provider is auto-detected for @gmail.com.
+ *   GMAIL_EMAIL=me@gmail.com
+ *   GMAIL_PASSWORD=app-password
+ *
+ * iCloud Mail (@icloud.com / @me.com / @mac.com) is skipped: it comes with your
+ * Apple ID (System Settings → Apple ID → iCloud → iCloud Mail), no profile needed.
+ */
+import { createHash } from 'node:crypto'
+import { existsSync, readFileSync, writeFileSync } from 'node:fs'
+import { homedir, tmpdir } from 'node:os'
+import { join } from 'node:path'
+import { spawnSync } from 'node:child_process'
+
+const HOME = homedir()
+const PROFILE_ID = 'com.chrisbreuer.dotfiles.mail'
+
+// Provider presets keyed by an explicit `<PREFIX>_PROVIDER` or the email domain.
+const PRESETS: Record<string, { imapHost: string, imapPort: number, smtpHost: string, smtpPort: number }> = {
+  gmail: { imapHost: 'imap.gmail.com', imapPort: 993, smtpHost: 'smtp.gmail.com', smtpPort: 587 },
+}
+
+// Email domains we deliberately skip (handled by signing into the Apple ID).
+const ICLOUD_DOMAINS = ['icloud.com', 'me.com', 'mac.com']
+
+interface Account {
+  prefix: string
+  label: string
+  name: string
+  email: string
+  username: string
+  password: string
+  imapHost: string
+  imapPort: number
+  smtpHost: string
+  smtpPort: number
+}
+
+function fail(msg: string): never {
+  console.error(`✖ ${msg}`)
+  process.exit(1)
+}
+
+/** Parse a .env: KEY=VALUE, `#` comments, optional quotes, `export ` prefix. */
+function parseEnv(text: string): Record<string, string> {
+  const out: Record<string, string> = {}
+  for (let line of text.split('\n')) {
+    line = line.trim()
+    if (!line || line.startsWith('#')) continue
+    if (line.startsWith('export ')) line = line.slice(7).trim()
+    const eq = line.indexOf('=')
+    if (eq === -1) continue
+    const key = line.slice(0, eq).trim()
+    let val = line.slice(eq + 1).trim()
+    if ((val.startsWith('"') && val.endsWith('"')) || (val.startsWith('\'') && val.endsWith('\''))) {
+      val = val.slice(1, -1)
+    }
+    out[key] = val
+  }
+  return out
+}
+
+/** Deterministic UUID (v5-ish) from a string, so re-runs update — not duplicate. */
+function stableUuid(seed: string): string {
+  const h = createHash('md5').update(seed).digest('hex')
+  return `${h.slice(0, 8)}-${h.slice(8, 12)}-${h.slice(12, 16)}-${h.slice(16, 20)}-${h.slice(20, 32)}`.toUpperCase()
+}
+
+function providerFor(env: Record<string, string>, prefix: string, email: string): string | null {
+  const explicit = env[`${prefix}_PROVIDER`]?.toLowerCase()
+  if (explicit) return explicit
+  const domain = email.split('@')[1]?.toLowerCase() ?? ''
+  if (domain === 'gmail.com' || domain === 'googlemail.com') return 'gmail'
+  if (ICLOUD_DOMAINS.includes(domain)) return 'icloud'
+  return null
+}
+
+function collectAccounts(env: Record<string, string>): Account[] {
+  const accounts: Account[] = []
+  for (const key of Object.keys(env)) {
+    const m = key.match(/^([A-Z0-9]+)_EMAIL$/)
+    if (!m) continue
+    const prefix = m[1]
+    const email = env[key].trim()
+    if (!email) continue
+
+    const provider = providerFor(env, prefix, email)
+    if (provider === 'icloud') {
+      console.error(`• ${email}: iCloud — skipped (set it up via System Settings → Apple ID → iCloud Mail).`)
+      continue
+    }
+    const preset = provider ? PRESETS[provider] : undefined
+
+    const password = env[`${prefix}_PASSWORD`] ?? ''
+    if (!password) fail(`${prefix}: missing ${prefix}_PASSWORD`)
+
+    const imapHost = env[`${prefix}_IMAP_HOST`] ?? preset?.imapHost
+    const smtpHost = env[`${prefix}_SMTP_HOST`] ?? preset?.smtpHost
+    if (!imapHost) fail(`${prefix}: no ${prefix}_IMAP_HOST and no known provider preset (set ${prefix}_PROVIDER or the host)`)
+    if (!smtpHost) fail(`${prefix}: no ${prefix}_SMTP_HOST and no known provider preset`)
+
+    accounts.push({
+      prefix,
+      label: env[`${prefix}_LABEL`] ?? prefix.charAt(0) + prefix.slice(1).toLowerCase(),
+      name: env[`${prefix}_NAME`] ?? email,
+      email,
+      username: env[`${prefix}_USERNAME`] ?? email,
+      password,
+      imapHost,
+      imapPort: Number(env[`${prefix}_IMAP_PORT`] ?? preset?.imapPort ?? 993),
+      smtpHost,
+      smtpPort: Number(env[`${prefix}_SMTP_PORT`] ?? preset?.smtpPort ?? 587),
+    })
+  }
+  return accounts
+}
+
+const xml = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
+
+function mailPayload(a: Account): string {
+  const uuid = stableUuid(`${PROFILE_ID}.${a.prefix}.${a.email}`)
+  return `    <dict>
+      <key>PayloadType</key><string>com.apple.mail.managed</string>
+      <key>PayloadVersion</key><integer>1</integer>
+      <key>PayloadIdentifier</key><string>${PROFILE_ID}.${a.prefix.toLowerCase()}</string>
+      <key>PayloadUUID</key><string>${uuid}</string>
+      <key>PayloadDisplayName</key><string>Mail: ${xml(a.email)}</string>
+      <key>EmailAccountType</key><string>EmailTypeIMAP</string>
+      <key>EmailAccountDescription</key><string>${xml(a.label)}</string>
+      <key>EmailAccountName</key><string>${xml(a.name)}</string>
+      <key>EmailAddress</key><string>${xml(a.email)}</string>
+      <key>IncomingMailServerHostName</key><string>${xml(a.imapHost)}</string>
+      <key>IncomingMailServerPortNumber</key><integer>${a.imapPort}</integer>
+      <key>IncomingMailServerUseSSL</key><true/>
+      <key>IncomingMailServerUsername</key><string>${xml(a.username)}</string>
+      <key>IncomingMailServerAuthentication</key><string>EmailAuthPassword</string>
+      <key>IncomingPassword</key><string>${xml(a.password)}</string>
+      <key>OutgoingMailServerHostName</key><string>${xml(a.smtpHost)}</string>
+      <key>OutgoingMailServerPortNumber</key><integer>${a.smtpPort}</integer>
+      <key>OutgoingMailServerUseSSL</key><true/>
+      <key>OutgoingMailServerUsername</key><string>${xml(a.username)}</string>
+      <key>OutgoingMailServerAuthentication</key><string>EmailAuthPassword</string>
+      <key>OutgoingPasswordSameAsIncomingPassword</key><true/>
+      <key>PreventAppSheet</key><false/>
+      <key>PreventMove</key><false/>
+      <key>SMIMEEnabled</key><false/>
+    </dict>`
+}
+
+function buildProfile(accounts: Account[]): string {
+  const uuid = stableUuid(PROFILE_ID + accounts.map(a => a.email).sort().join(','))
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>PayloadType</key><string>Configuration</string>
+  <key>PayloadVersion</key><integer>1</integer>
+  <key>PayloadIdentifier</key><string>${PROFILE_ID}</string>
+  <key>PayloadUUID</key><string>${uuid}</string>
+  <key>PayloadDisplayName</key><string>Mail Accounts (${accounts.length})</string>
+  <key>PayloadDescription</key><string>IMAP/SMTP mail accounts generated from your dotfiles .env.</string>
+  <key>PayloadOrganization</key><string>dotfiles</string>
+  <key>PayloadScope</key><string>User</string>
+  <key>PayloadRemovalDisallowed</key><false/>
+  <key>PayloadContent</key>
+  <array>
+${accounts.map(mailPayload).join('\n')}
+  </array>
+</dict>
+</plist>
+`
+}
+
+// ── main ─────────────────────────────────────────────────────────────────────
+const args = process.argv.slice(2)
+const printOnly = args.includes('--print')
+const envPath = args.find(a => !a.startsWith('--')) ?? process.env.MAIL_ENV ?? join(HOME, '.config/mail-accounts.env')
+
+if (!existsSync(envPath)) {
+  fail(`No mail env file at ${envPath}\n  Create one (see bin/mail-profile header or mail-accounts.env.example), or pass a path.`)
+}
+
+const env = parseEnv(readFileSync(envPath, 'utf8'))
+const accounts = collectAccounts(env)
+if (accounts.length === 0) fail('No accounts found (need at least one <PREFIX>_EMAIL).')
+
+const outPath = join(tmpdir(), 'mail-accounts.mobileconfig')
+writeFileSync(outPath, buildProfile(accounts), { mode: 0o600 })
+
+console.error(`✓ Wrote profile for ${accounts.length} account(s): ${accounts.map(a => a.email).join(', ')}`)
+console.error(`  ${outPath}`)
+
+if (printOnly) {
+  console.log(outPath)
+}
+else {
+  spawnSync('open', [outPath], { stdio: 'ignore' })
+  console.error('\nNext: System Settings → General → Device Management → install the staged profile.')
+  console.error('Then delete the file above — it holds your passwords in plaintext.')
+}

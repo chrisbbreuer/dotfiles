@@ -137,6 +137,13 @@ const config: BackupConfig = {
       optional: true,
       exclude: ['**/cache/**', '**/cache'],
     },
+    // Mail account credentials for `bun run mail` (bin/mail-profile) — used to
+    // regenerate the Mail.app configuration profile on a new machine.
+    {
+      name: 'mail-accounts',
+      path: join(HOME, '.config/mail-accounts.env'),
+      optional: true,
+    },
 
     // ── Git identity ────────────────────────────────────────────────────
     {

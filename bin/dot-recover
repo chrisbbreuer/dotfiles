@@ -35,3 +35,6 @@ sh "$DOTFILES/clone.sh" \
 echo
 echo "✅ Recovery complete. Spot-check a repo or two:  git -C ~/Code/stacks log --oneline -3"
 echo "   Anything flagged 'needs a manual look' above is a diverged branch saved under refs/rescued/*."
+if [ -f "$HOME/.config/mail-accounts.env" ]; then
+  echo "   Mail accounts: run 'bun run mail' to recreate them from your restored creds."
+fi

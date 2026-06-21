@@ -53,7 +53,9 @@ of truth — no duplicated `$PATH` or alias lists between Den and zsh.
 | [`bin/dotsync`](./bin/dotsync) | Runs ts-backups (from source) against `.config/backups.ts` |
 | [`bin/git-sync.ts`](./bin/git-sync.ts) | Rescues/recovers local-only git work (unpushed commits, stashes, uncommitted, untracked) |
 | [`bin/dot-recover`](./bin/dot-recover) | One-shot new-machine recovery: secrets + repos + git work |
-| [`package.json`](./package.json) | `bun run backup` / `rescue` / `recover` / `prewipe` scripts |
+| [`bin/mail-profile`](./bin/mail-profile) | Generates a Mail.app config profile (`.mobileconfig`) from a `.env` of mail creds |
+| [`mail-accounts.env.example`](./mail-accounts.env.example) | Template for the mail-account credentials `bin/mail-profile` reads |
+| [`package.json`](./package.json) | `bun run backup` / `rescue` / `recover` / `prewipe` / `mail` scripts |
 | [`fresh.sh`](./fresh.sh) | One-shot provisioning script for a new Mac |
 | [`clone.sh`](./clone.sh) | Clones every repo in the stacksjs / home-lang / cwcss / zig-utils orgs |
 | [`ssh.sh`](./ssh.sh) | Generates a new SSH key for GitHub |
@@ -219,6 +221,8 @@ run it by hand if iCloud wasn't synced yet at provision time.
   session data (transcripts, file-history, caches) is excluded.
 - **Project secrets** — every real `.env` / `.env.*` under `~/Code` (recursively,
   paths preserved; `.env.example` and friends skipped).
+- **Mail accounts** — `~/.config/mail-accounts.env` (the creds `bin/mail-profile`
+  turns into a Mail.app profile — see [Mail accounts](#mail-accounts)).
 
 Each entry is its own timestamped, retained snapshot, so you can restore one thing
 in isolation:
@@ -246,6 +250,35 @@ hand.
 > **Note:** secrets live in your iCloud, which you're trusting with them. Your
 > `gh` token lives in the macOS keyring (not a file), so it doesn't transfer —
 > on a new machine the SSH keys cover git, and `gh auth login` re-auths the CLI.
+
+## Mail accounts
+
+macOS has no supported CLI to create a Mail.app account directly, but a
+**configuration profile** can define IMAP/SMTP accounts (servers, ports, SSL,
+username, password) declaratively. [`bin/mail-profile`](./bin/mail-profile)
+generates that profile from a `.env` of credentials and opens it for you:
+
+```sh
+cp mail-accounts.env.example ~/.config/mail-accounts.env   # then fill it in
+bun run mail                                               # generates + opens the profile
+```
+
+The `.env` is one block per account (see
+[`mail-accounts.env.example`](./mail-accounts.env.example)); it's synced to iCloud
+by ts-backups (the `mail-accounts` entry in `.config/backups.ts`) and **never**
+committed to this repo. On a new machine `bun run recover` restores it, then
+`bun run mail` recreates the accounts.
+
+Caveats:
+
+- **One approval click.** On a non-MDM Mac macOS won't install a profile
+  silently — `bun run mail` opens it and you approve once in System Settings →
+  General → Device Management. All accounts land from that single click.
+- **Provider auth.** Custom IMAP/SMTP and Gmail (with an **app password**) are
+  fully prefilled. **iCloud Mail** is skipped — it comes with signing into your
+  Apple ID. OAuth-only providers would still need an interactive sign-in.
+- The generated `.mobileconfig` holds plaintext passwords (written to `$TMPDIR`,
+  `chmod 600`) — delete it once the profile is installed.
 
 ## Cleaning your old Mac (optional)
 
