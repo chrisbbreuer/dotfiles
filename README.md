@@ -118,10 +118,10 @@ of truth — no duplicated `$PATH` or alias lists between Den and zsh.
 > live in [`apps.yaml`](./apps.yaml) and [`fonts.yaml`](./fonts.yaml), which Pantry
 > reads automatically alongside `deps.yaml`. Pantry ≥ 0.10.0 installs casks and
 > fonts **natively** (from Homebrew's public cask JSON — no `brew` binary needed),
-> so the core setup needs no Homebrew. Only **Mac App Store** apps (the `mas:`
-> entries) need the standalone `mas` CLI (`pantry install mas`) and the App Store
-> signed in (`mas account`); apps may prompt for your password. If `mas` is
-> absent, only those App Store apps are skipped — everything else still installs.
+> so the core setup needs no Homebrew. **Mac App Store** apps (the `mas:` entries)
+> need no `mas` CLI either: Pantry skips any that's already installed, and for the
+> rest opens the App Store to the app's page for a one-click install (if `mas`
+> happens to be installed, it uses it to install them headlessly instead).
 
 ### 3. Start using Den
 

@@ -6,9 +6,11 @@
 #   - <slug>                          Homebrew cask of that name (installed
 #                                     natively from Homebrew's public cask JSON)
 #   - { cask: <token> }               explicit Homebrew cask
-#   - { mas: "<id>", name: <App> }    Mac App Store app (needs the `mas` CLI)
+#   - { mas: "<id>", name: <App> }    Mac App Store app (no `mas` CLI required —
+#                                     Pantry opens the App Store to install, or
+#                                     uses `mas` headlessly if it's present)
 #
-# Installs are idempotent; Mac App Store apps need the App Store signed in.
+# Installs are idempotent; Mac App Store installs need the App Store signed in.
 - 1password
 - arc
 - cursor
