@@ -1,6 +1,6 @@
 # Dependencies — managed by Pantry (https://github.com/pantry-pm/pantry)
 #
-# Install / sync everything with:  pantry install   (Pantry ≥ 0.10.0)
+# Install / sync everything with:  pantry install   (Pantry ≥ 0.10.1)
 #
 # Notes:
 #   - `deps:` is Pantry's shorthand for `dependencies:` (both work).

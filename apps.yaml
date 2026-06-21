@@ -1,4 +1,4 @@
-# GUI applications — installed by `pantry install` on macOS (Pantry ≥ 0.10.0).
+# GUI applications — installed by `pantry install` on macOS (Pantry ≥ 0.10.1).
 #
 # Hoisted out of deps.yaml so the package list stays focused on CLI tools.
 # Pantry reads this sibling file automatically alongside deps.yaml and merges

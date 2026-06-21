@@ -1,4 +1,4 @@
-# Fonts — installed by `pantry install` on macOS (Pantry ≥ 0.10.0).
+# Fonts — installed by `pantry install` on macOS (Pantry ≥ 0.10.1).
 #
 # Hoisted out of deps.yaml; Pantry reads this sibling file automatically
 # alongside deps.yaml and merges the entries. Names are Homebrew font casks.
