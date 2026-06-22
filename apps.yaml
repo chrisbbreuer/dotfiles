@@ -10,7 +10,6 @@
 #
 # Verify any package at registry.pantry.dev/binaries/<domain>/metadata.json or
 # https://pantry.dev/packages. Installs are idempotent.
-- 1password.com
 - code.visualstudio.com
 - cursor.com
 - diabrowser.com         # Dia (The Browser Company) — used instead of Arc
@@ -38,8 +37,3 @@
 - { mas: "1472777122", name: Honey }
 - { mas: "1520333300", name: Wappalyzer }
 - { mas: "1147396723", name: WhatsApp }
-
-# Not included:
-# - arc.net   — dropped in favour of Dia (above).
-# - rewind    — Rewind.ai was sunset (the app/download no longer exists); its
-#               successor is Limitless. Add it back if a download URL returns.
