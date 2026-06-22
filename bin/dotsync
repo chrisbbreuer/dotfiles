@@ -16,7 +16,10 @@ set -e
 
 DOTFILES="${DOTFILES:-$HOME/.dotfiles}"
 CODE="$HOME/Code"
-TS_BACKUPS_REPO="https://github.com/stacksjs/ts-backups.git"
+# Clone over SSH (git@): ts-backups is private, and on a fresh machine HTTPS
+# would prompt for a password and fail (GitHub dropped password auth). ssh.sh
+# has already put your key on GitHub by this point.
+TS_BACKUPS_REPO="git@github.com:stacksjs/ts-backups.git"
 
 # `list` is a convenience the CLI doesn't provide: peek at the iCloud folder.
 if [ "$1" = "list" ]; then
