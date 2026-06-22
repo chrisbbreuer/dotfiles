@@ -18,6 +18,12 @@ export LANG=en_US.UTF-8
 # Claude Code
 export CLAUDE_CODE_MAX_OUTPUT_TOKENS=unlimited
 
+# Default editor — Zed (installed via apps.yaml; CLI at ~/.local/bin/zed).
+# `--wait` blocks until the buffer closes so `git commit`/rebase work correctly.
+# git has no core.editor set, so it honours $EDITOR automatically.
+export EDITOR="zed --wait"
+export VISUAL="zed --wait"
+
 # Bun
 export BUN_INSTALL="$HOME/.bun"
 

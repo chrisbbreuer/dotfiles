@@ -11,7 +11,6 @@
 # Verify any package at registry.pantry.dev/binaries/<domain>/metadata.json or
 # https://pantry.dev/packages. Installs are idempotent.
 - code.visualstudio.com
-- cursor.com
 - diabrowser.com         # Dia (The Browser Company) — used instead of Arc
 - discord.com
 - ghostty.org            # terminal — point its shell at ~/.local/bin/den
@@ -30,6 +29,7 @@
 - the-unarchiver.com
 - transmit.panic.com
 - vlc.app
+- zed.dev                # primary editor — set as $EDITOR/$VISUAL in env.sh
 
 # Mac App Store apps — installed via the App Store (need it signed in):
 - { mas: "1402042596", name: AdBlock }

@@ -56,6 +56,14 @@ echo "==> Installing GUI apps & fonts via Pantry..."
 ( cd "$DOTFILES" && pantry install ) \
   || echo "    (some apps/fonts could not be installed — review the output above)"
 
+# Zed ships its CLI *inside* the app bundle, but Pantry's native app install only
+# places Zed.app in /Applications — it does not put a `zed` on PATH. Symlink it
+# ourselves so EDITOR="zed --wait" (env.sh) resolves. Idempotent; no-op if absent.
+if [ -x "/Applications/Zed.app/Contents/MacOS/cli" ]; then
+  ln -sf "/Applications/Zed.app/Contents/MacOS/cli" "$HOME/.local/bin/zed"
+  echo "    ✓ zed -> $HOME/.local/bin/zed"
+fi
+
 # Ensure a Den-capable Zig. Den needs the exact 0.17-dev build pinned in
 # deps.yaml. Older Pantry releases resolve versions from a baked-in snapshot that
 # predates that build and silently install an older dev build that can't compile
