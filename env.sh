@@ -30,19 +30,6 @@ export BUN_INSTALL="$HOME/.bun"
 export PATH="$HOME/.local/share/pantry/global/bin:$PATH"
 export PATH="$HOME/.local/share/pantry/global/pantry_modules/.bin:$PATH"
 
-# Two self-heals for gaps in Pantry's current bun/git packages (cheap + idempotent):
-#   - Pantry's bun package doesn't ship a `bunx` shim. bun dispatches on argv[0],
-#     so a symlink is all it takes; without it `bunx`-based postinstalls fail.
-#   - Pantry's git binary has a wrong compiled-in template path and warns
-#     "templates not found in /opt/git-scm.org/..." on every clone/init. Point
-#     git at the real templates instead.
-_pg="$HOME/.local/share/pantry/global/bin"
-[ -x "$_pg/bun" ] && [ ! -e "$_pg/bunx" ] && ln -sf bun "$_pg/bunx" 2>/dev/null
-for _t in "$HOME"/.local/share/pantry/global/packages/git-scm.org/v[0-9]*/share/git-core/templates; do
-  [ -d "$_t" ] && export GIT_TEMPLATE_DIR="$_t" && break
-done
-unset _pg _t
-
 # Homebrew — kept only for GUI casks Pantry cannot manage; harmless if absent.
 export PATH="/opt/homebrew/bin:$PATH"
 
