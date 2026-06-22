@@ -56,12 +56,46 @@ echo "==> Installing GUI apps & fonts via Pantry..."
 ( cd "$DOTFILES" && pantry install ) \
   || echo "    (some apps/fonts could not be installed — review the output above)"
 
-# Sanity check: Den needs Zig 0.17-dev. If Pantry's registry hasn't yet published
-# a recent enough dev build, surface it clearly rather than failing cryptically.
+# Ensure a Den-capable Zig. Den needs the exact 0.17-dev build pinned in
+# deps.yaml. Older Pantry releases resolve versions from a baked-in snapshot that
+# predates that build and silently install an older dev build that can't compile
+# Den, so if the Zig on PATH isn't the pinned one, fetch the pinned dev build
+# straight from Pantry's registry CDN (which has it) into the user-global bin.
+ZIG_PIN="$(awk -F': *' '/ziglang.org:/ {print $2}' "$DOTFILES/deps.yaml" | awk '{print $1}')"
+if [ -n "$ZIG_PIN" ] && ! zig version 2>/dev/null | grep -q "${ZIG_PIN%%[+_]*}"; then
+  echo "==> Fetching pinned Zig ($ZIG_PIN)..."
+  case "$(uname -m)" in
+    arm64|aarch64) ZARCH="darwin-arm64"; ZIGARCH="aarch64-macos" ;;
+    *)             ZARCH="darwin-x86-64"; ZIGARCH="x86_64-macos" ;;
+  esac
+  ZDIR="$HOME/.local/share/pantry/global"
+  ZTMP="$(mktemp -d)"
+  # Source 1: Pantry's registry (.tar.gz). Source 2: ziglang.org's official
+  # build (.tar.xz) — covers dev builds Pantry's registry hasn't published yet.
+  # `tar xf` auto-detects gzip vs xz.
+  if ! curl -fsSL "https://registry.pantry.dev/binaries/ziglang.org/$ZIG_PIN/$ZARCH/ziglang.org-$ZIG_PIN.tar.gz" -o "$ZTMP/zig.tar" 2>/dev/null; then
+    curl -fsSL "https://ziglang.org/builds/zig-$ZIGARCH-$ZIG_PIN.tar.xz" -o "$ZTMP/zig.tar" 2>/dev/null || true
+  fi
+  if [ -s "$ZTMP/zig.tar" ] && tar xf "$ZTMP/zig.tar" -C "$ZTMP" 2>/dev/null; then
+    # Layout differs by source: ziglang.org ships <root>/zig + <root>/lib, while
+    # Pantry ships <root>/bin/zig + <root>/lib. Copy the dir that holds zig's
+    # lib/ and symlink to wherever the binary actually lands.
+    ZBIN="$(find "$ZTMP" -type f -name zig -maxdepth 3 | head -1)"
+    ZROOT="$(dirname "$ZBIN")"
+    [ -d "$ZROOT/lib" ] || ZROOT="$(dirname "$ZROOT")"
+    if [ -n "$ZBIN" ] && [ -d "$ZROOT/lib" ]; then
+      DEST="$ZDIR/packages/ziglang.org/manual-$ZIG_PIN"
+      rm -rf "$DEST"; mkdir -p "$DEST" "$ZDIR/bin"
+      cp -R "$ZROOT/." "$DEST/"
+      ln -sf "$(find "$DEST" -type f -name zig -maxdepth 2 | head -1)" "$ZDIR/bin/zig"
+    fi
+  else
+    echo "    ! could not fetch Zig $ZIG_PIN — Den build may fail. Continuing." >&2
+  fi
+  rm -rf "$ZTMP"
+fi
 if ! zig version 2>/dev/null | grep -q '^0\.17'; then
-  echo "WARNING: 'zig' is not 0.17.x after 'pantry install'." >&2
-  echo "         Bump the ziglang.org pin in deps.yaml to an available dev build" >&2
-  echo "         (see https://ziglang.org/download), then re-run 'pantry install'." >&2
+  echo "WARNING: 'zig' is not 0.17.x — Den won't build. Check the ziglang.org pin in deps.yaml." >&2
 fi
 
 # 4. Build & install Den (the shell). Clone over SSH (git@) — Den is private, so
@@ -71,16 +105,21 @@ fi
 #    recovery below still runs — you can rebuild Den later with `bun run den`.
 if [ ! -d "$CODE/den" ]; then
   echo "==> Cloning Den (SSH)..."
-  git clone git@github.com:stacksjs/den.git "$CODE/den" \
+  git clone git@github.com:home-lang/den.git "$CODE/den" \
     || echo "    ! could not clone Den — check 'ssh -T git@github.com'. Skipping Den build."
 fi
 if [ -d "$CODE/den" ]; then
   echo "==> Building Den..."
-  if ( cd "$CODE/den" && zig build -Doptimize=ReleaseFast ); then
+  ( cd "$CODE/den" && zig build -Doptimize=ReleaseFast ) || true
+  # Symlink the den binary if the build produced it. Den ships example targets
+  # that may lag the pinned Zig; the shell binary itself builds first, so a
+  # failed example shouldn't stop us linking a working `den`.
+  if [ -x "$CODE/den/zig-out/bin/den" ]; then
     ln -sf "$CODE/den/zig-out/bin/den" "$HOME/.local/bin/den"
+    echo "    ✓ den -> $HOME/.local/bin/den"
   else
-    echo "    ! Den build failed (often a Zig version mismatch). Continuing." >&2
-    echo "      Fix the ziglang.org pin in deps.yaml, then: cd ~/Code/den && zig build -Doptimize=ReleaseFast" >&2
+    echo "    ! Den build did not produce a binary (often a Zig version mismatch). Continuing." >&2
+    echo "      Check the ziglang.org pin in deps.yaml, then: cd ~/Code/den && zig build -Doptimize=ReleaseFast" >&2
   fi
 fi
 
@@ -97,10 +136,25 @@ rm -f "$HOME/.zshrc"; ln -sf "$DOTFILES/.zshrc" "$HOME/.zshrc"    # zsh fallback
 #    Drive to be signed in and synced; if it isn't here yet we skip with instructions.
 ICLOUD_BK="$HOME/Library/Mobile Documents/com~apple~CloudDocs/ts-backups"
 if [ -d "$ICLOUD_BK" ]; then
+  # Full recovery: restores ~/.ssh (keys + the host configs you SSH into),
+  # ~/.config/gh (so gh is authed), ~/.aws, every project's .env files, then
+  # clones all your repos. This is where the "ssh into machines / .env" setup
+  # comes from — see .config/backups.ts for the full list.
   "$DOTFILES/bin/dot-recover" || echo "    (recover reported problems — review output above)"
 else
-  echo "==> No iCloud backup found yet. Sign in to iCloud, let it finish syncing,"
-  echo "    then run:  cd ~/.dotfiles && bun run recover"
+  # No iCloud yet: we can't restore secrets/.env, but we can still clone all your
+  # repos over SSH so the machine is usable. clone.sh needs gh to list org repos;
+  # authenticate it now (the keyring token doesn't transfer between machines).
+  echo "==> No iCloud backup found yet — skipping secret/.env restore."
+  if command -v gh >/dev/null 2>&1 && ! gh auth status >/dev/null 2>&1; then
+    echo "==> Authenticating gh (needed to clone your org repos)..."
+    gh auth login --git-protocol ssh --hostname github.com \
+      || echo "    (skipped gh auth — run 'gh auth login' later, then 'sh clone.sh')"
+  fi
+  echo "==> Cloning your repositories (Pantry, Den, org repos)..."
+  sh "$DOTFILES/clone.sh" || echo "    (clone.sh reported problems — review output above)"
+  echo "==> Once iCloud has synced, restore secrets/.env & mail with:"
+  echo "    cd ~/.dotfiles && bun run recover"
 fi
 
 # 7. macOS defaults — reloads the shell, so run this last.
