@@ -35,12 +35,26 @@ export PATH="$HOME/.local/bin:$HOME/.local/share/pantry/global/bin:$HOME/.local/
 #    bash, and Zig (Den's build toolchain) from deps.yaml, plus the GUI apps and
 #    fonts from apps.yaml / fonts.yaml (Pantry reads those siblings automatically).
 #    Pantry installs everything NATIVELY — no Homebrew, no mas, no extra tooling.
-#    Casks and fonts come straight from Pantry/Homebrew's public JSON; Mac App
-#    Store apps open in the App Store for a one-click install (already-installed
-#    ones are skipped).
-echo "==> Installing all dependencies via Pantry..."
+#
+#    IMPORTANT: a *bare* `pantry install` treats this repo as a project and drops
+#    the CLI tools into a local, gitignored `./pantry/` dir that is NOT on PATH —
+#    so git/gh/zig/bun would never be found and every later step would fail. The
+#    `--user` flag honours `global: true` in deps.yaml and installs them into the
+#    canonical user dir (~/.local/share/pantry/global/bin) that env.sh adds to
+#    PATH. That's the install that matters, so run it first.
+echo "==> Installing CLI tools via Pantry (user-global, onto PATH)..."
+( cd "$DOTFILES" && pantry install --user ) \
+  || echo "    WARNING: 'pantry install --user' reported errors. Most tools should still be installed — continuing."
+
+# GUI apps + fonts (apps.yaml / fonts.yaml). Newer Pantry installs these during
+# the --user run above; older releases only wire them up through the project
+# path, so run a bare install too. Any CLI shims it writes go to the gitignored
+# ./pantry and are harmless — the user-global copies above are what's on PATH.
+# Mac App Store apps open in the App Store for a one-click install; already
+# installed apps/fonts are skipped, so this is safe to re-run.
+echo "==> Installing GUI apps & fonts via Pantry..."
 ( cd "$DOTFILES" && pantry install ) \
-  || echo "    WARNING: 'pantry install' reported errors. CLI tools should still be installed — continuing."
+  || echo "    (some apps/fonts could not be installed — review the output above)"
 
 # Sanity check: Den needs Zig 0.17-dev. If Pantry's registry hasn't yet published
 # a recent enough dev build, surface it clearly rather than failing cryptically.
@@ -50,14 +64,25 @@ if ! zig version 2>/dev/null | grep -q '^0\.17'; then
   echo "         (see https://ziglang.org/download), then re-run 'pantry install'." >&2
 fi
 
-# 4. Build & install Den (the shell).
+# 4. Build & install Den (the shell). Clone over SSH (git@) — Den is private, so
+#    HTTPS would prompt for a password and fail (GitHub dropped password auth).
+#    ssh.sh has already put your key on GitHub, so SSH just works. Den's build is
+#    non-fatal: if Zig isn't new enough yet, keep going so the secrets/.env/SSH
+#    recovery below still runs — you can rebuild Den later with `bun run den`.
 if [ ! -d "$CODE/den" ]; then
-  echo "==> Cloning Den..."
-  git clone https://github.com/stacksjs/den.git "$CODE/den"
+  echo "==> Cloning Den (SSH)..."
+  git clone git@github.com:stacksjs/den.git "$CODE/den" \
+    || echo "    ! could not clone Den — check 'ssh -T git@github.com'. Skipping Den build."
 fi
-echo "==> Building Den..."
-( cd "$CODE/den" && zig build -Doptimize=ReleaseFast )
-ln -sf "$CODE/den/zig-out/bin/den" "$HOME/.local/bin/den"
+if [ -d "$CODE/den" ]; then
+  echo "==> Building Den..."
+  if ( cd "$CODE/den" && zig build -Doptimize=ReleaseFast ); then
+    ln -sf "$CODE/den/zig-out/bin/den" "$HOME/.local/bin/den"
+  else
+    echo "    ! Den build failed (often a Zig version mismatch). Continuing." >&2
+    echo "      Fix the ziglang.org pin in deps.yaml, then: cd ~/Code/den && zig build -Doptimize=ReleaseFast" >&2
+  fi
+fi
 
 # 5. Symlink shell configs.
 ln -sf "$DOTFILES/.denrc" "$HOME/.denrc"                          # Den shell startup
