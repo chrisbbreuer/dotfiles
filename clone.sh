@@ -13,8 +13,9 @@
 set -e
 
 CODE="$HOME/Code"
-# Every repo in these orgs gets cloned.
-ORGS="stacksjs home-lang cwcss zig-utils"
+# Every repo in these orgs gets cloned. pantry-pm holds Pantry (our package
+# manager); home-lang holds Den (our shell) — both are tools fresh.sh builds on.
+ORGS="stacksjs home-lang cwcss zig-utils pantry-pm"
 # Individual repos outside those orgs (owner/repo, space-separated).
 EXTRA_REPOS=""
 
