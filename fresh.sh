@@ -127,6 +127,8 @@ fi
 ln -sf "$DOTFILES/.denrc" "$HOME/.denrc"                          # Den shell startup
 ln -sf "$DOTFILES/.config/den.jsonc" "$HOME/.config/den.jsonc"    # Den declarative config
 rm -f "$HOME/.zshrc"; ln -sf "$DOTFILES/.zshrc" "$HOME/.zshrc"    # zsh fallback
+ln -sf "$DOTFILES/.gitignore_global" "$HOME/.gitignore_global"    # global gitignore
+git config --global core.excludesfile "$HOME/.gitignore_global"  # (user/email come from recovery)
 
 # 6. Recover EVERYTHING from iCloud in one shot: credentials, .env files and app
 #    settings, then every repo cloned back to its original ~/Code path with all
