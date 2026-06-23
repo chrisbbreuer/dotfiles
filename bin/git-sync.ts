@@ -14,9 +14,9 @@
  *
  * Env overrides (used by the tests): GIT_RESCUE_DIR, CODE_DIR.
  */
-import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, readdirSync, readFileSync, renameSync, rmSync, writeFileSync } from 'node:fs'
 import { homedir, tmpdir } from 'node:os'
-import { join } from 'node:path'
+import { join, resolve } from 'node:path'
 
 const HOME = homedir()
 const CODE = process.env.CODE_DIR || join(HOME, 'Code')
@@ -66,6 +66,54 @@ function sh(cmd: string[], cwd?: string): { code: number, out: string, err: stri
 }
 const git = (args: string[], cwd: string) => sh(['git', ...args], cwd)
 const slugify = (rel: string) => rel.replace(/[/\\]/g, '-')
+
+const isGitRepo = (dir: string) => existsSync(join(dir, '.git'))
+
+/** Pick the most meaningful line out of git stderr — skip noise like the
+ *  "warning: templates not found" git prints on every clone, so a real failure
+ *  (e.g. "repository not found") isn't masked by it. */
+const cloneErr = (s: string) =>
+  s.split('\n').map(l => l.trim()).filter(l => l && !/^warning:/i.test(l) && !/templates not found/i.test(l)).pop()
+  || s.split('\n').find(Boolean)
+  || 'unknown error'
+
+/** True when dir lives inside ANOTHER git work-tree, so a parent checkout owns
+ *  it (e.g. test fixtures under a repo). We must not nest a clone there. */
+function insideAnotherRepo(dir: string): boolean {
+  let p = dir
+  while (!existsSync(p)) {
+    const up = resolve(p, '..')
+    if (up === p)
+      return false
+    p = up
+  }
+  const top = sh(['git', '-C', p, 'rev-parse', '--show-toplevel']).out.trim()
+  return !!top && resolve(top) !== resolve(dir)
+}
+
+/** Clone src (remote URL or bundle path) to dest — even when dest already exists
+ *  with restored, non-git files in it. In that case clone into a temp sibling,
+ *  graft its .git in, then re-materialise tracked files, leaving the restored
+ *  (untracked) files exactly where they are. */
+function cloneInto(dest: string, src: string): { ok: boolean, err: string } {
+  mkdirSync(resolve(dest, '..'), { recursive: true })
+  const nonEmpty = existsSync(dest) && readdirSync(dest).length > 0
+  if (!nonEmpty) {
+    const c = sh(['git', 'clone', '-q', src, dest])
+    return { ok: c.code === 0, err: c.err }
+  }
+  const tmp = `${dest}.git-recover-tmp`
+  rmSync(tmp, { recursive: true, force: true })
+  const c = sh(['git', 'clone', '-q', src, tmp])
+  if (c.code !== 0 || !existsSync(join(tmp, '.git'))) {
+    rmSync(tmp, { recursive: true, force: true })
+    return { ok: false, err: c.err || 'clone produced no .git' }
+  }
+  renameSync(join(tmp, '.git'), join(dest, '.git'))
+  rmSync(tmp, { recursive: true, force: true })
+  const r = git(['reset', '--hard', 'HEAD'], dest) // restore tracked files; untracked restored files are kept
+  return { ok: r.code === 0, err: r.err }
+}
 
 function findRepos(): string[] {
   const r = sh(['find', CODE, '(', '-name', 'node_modules', '-o', '-name', 'vendor', ')', '-prune', '-o', '-type', 'd', '-name', '.git', '-print'])
@@ -188,7 +236,7 @@ function rescue(): void {
 }
 
 // ── recover ─────────────────────────────────────────────────────────────────
-function recover(): void {
+function recover(onlyMissing: boolean): void {
   if (!existsSync(RESCUE)) {
     console.error(`No git-rescue data found at ${RESCUE}. Nothing to recover.`)
     return
@@ -210,6 +258,15 @@ function recover(): void {
       })
   }
 
+  // --missing: only (re)clone repos that aren't a real git repo on disk yet —
+  // a safe re-run that repairs what didn't land without re-applying local work
+  // (stashes/uncommitted) to the repos that already restored cleanly.
+  if (onlyMissing) {
+    const before = entries.length
+    entries = entries.filter(e => !isGitRepo(join(CODE, e.path)))
+    console.warn(`--missing: ${entries.length} of ${before} recorded repo(s) still need (re)cloning.\n`)
+  }
+
   let restored = 0
   let cloned = 0
   const review: string[] = []
@@ -220,19 +277,27 @@ function recover(): void {
     const dir = join(RESCUE, slug)
     const bundle = join(dir, 'repo.bundle')
 
-    // Clone to the EXACT original path if missing: from the remote when there
-    // is one, otherwise straight from the self-contained bundle.
-    if (!existsSync(dest)) {
-      mkdirSync(join(dest, '..'), { recursive: true })
-      let c
-      if (entry.remote)
-        c = sh(['git', 'clone', '-q', entry.remote, dest])
-      else if (existsSync(bundle))
-        c = sh(['git', 'clone', '-q', bundle, dest])
-      else
-        c = { code: 1, out: '', err: 'no remote and no bundle' }
-      if (c.code !== 0) {
-        console.error(`  ! ${entry.path}: clone failed (${c.err.split('\n')[0]})`)
+    // Clone to the EXACT original path unless it's ALREADY a real git repo.
+    // Crucially we gate on a .git, NOT on mere directory existence: the
+    // credential/.env restore that runs before us drops files (e.g.
+    // Home/lang/…/.env) into these paths, pre-creating the directory. The old
+    // existsSync() guard then skipped the clone and left a non-repo dir of stray
+    // files. cloneInto() grafts a fresh clone onto whatever's already there.
+    if (!isGitRepo(dest)) {
+      if (existsSync(dest) && insideAnotherRepo(dest)) {
+        // Lives inside a parent checkout (e.g. a test fixture) — that repo's
+        // clone already provides it; nesting another clone here would be wrong.
+        console.warn(`  ↪ ${entry.path} (inside another repo — skipped)`)
+        continue
+      }
+      const src = entry.remote || (existsSync(bundle) ? bundle : '')
+      if (!src) {
+        console.error(`  ! ${entry.path}: no remote and no bundle — cannot clone`)
+        continue
+      }
+      const c = cloneInto(dest, src)
+      if (!c.ok) {
+        console.error(`  ! ${entry.path}: clone failed (${cloneErr(c.err)})`)
         continue
       }
       cloned++
@@ -328,8 +393,8 @@ const cmd = process.argv[2]
 if (cmd === 'rescue')
   rescue()
 else if (cmd === 'recover')
-  recover()
+  recover(process.argv.includes('--missing'))
 else {
-  console.error('usage: git-sync.ts <rescue|recover>')
+  console.error('usage: git-sync.ts <rescue | recover [--missing]>')
   process.exit(1)
 }
