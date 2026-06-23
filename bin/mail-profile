@@ -302,13 +302,31 @@ if (profile.length > 0) {
   if (printOnly) {
     for (const b of builds) console.log(b.path)
   }
+  else if (builds.length === 1) {
+    spawnSync('open', [builds[0].path], { stdio: 'ignore' })
+    console.error('  → approve it: System Settings → General → Device Management.')
+    console.error('  Then delete the file — it holds plaintext passwords.')
+  }
   else {
-    for (const b of builds) spawnSync('open', [b.path], { stdio: 'ignore' })
-    const many = builds.length > 1
-    console.error(`  → approve ${many ? 'each one' : 'it'}: System Settings → General → Device Management.`)
-    if (many)
-      console.error('    (if only one shows at a time, approve it then re-open the next path above with `open`)')
-    console.error(`  Then delete the file${many ? 's' : ''} — ${many ? 'they hold' : 'it holds'} plaintext passwords.`)
+    // macOS only stages ONE downloaded profile for review at a time, so opening
+    // them all at once just surfaces the first. In a terminal, open one and pause
+    // for Enter before the next; otherwise open the first and print the rest.
+    const tty = !!process.stdin.isTTY
+    console.error('\nmacOS reviews one profile at a time — approve each in')
+    console.error('System Settings → General → Device Management as it opens.\n')
+    builds.forEach((b, i) => {
+      if (tty || i === 0) {
+        spawnSync('open', [b.path], { stdio: 'ignore' })
+        console.error(`  [${i + 1}/${builds.length}] opened — ${b.label}`)
+      }
+      if (tty && i < builds.length - 1)
+        prompt('        approve it, then press Enter for the next…')
+    })
+    if (!tty) {
+      console.error('  After approving it, open the rest one at a time:')
+      builds.slice(1).forEach(b => console.error(`    open ${b.path}`))
+    }
+    console.error('\n  Delete the files when done — they hold plaintext passwords.')
   }
 }
 
