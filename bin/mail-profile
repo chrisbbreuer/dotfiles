@@ -7,14 +7,24 @@
  *   bun run mail                      # uses ~/.config/mail-accounts.env
  *   ./bin/mail-profile path/to.env    # explicit env file
  *   MAIL_ENV=… ./bin/mail-profile     # or via env var
- *   ./bin/mail-profile --print        # write + print the path, don't open
+ *   ./bin/mail-profile --bundle       # one combined profile instead of one-per-account
+ *   ./bin/mail-profile --print        # write + print the path(s), don't open
  *
  * Why a profile? macOS has no supported CLI to create a Mail account directly;
  * a `com.apple.mail.managed` configuration profile is the clean, scriptable way
  * to define IMAP/SMTP accounts (servers, ports, SSL, username, password). On a
- * non-MDM Mac the profile can't install silently — macOS stages it and you
- * approve it once in System Settings → General → Device Management. All accounts
- * land together from that single click.
+ * non-MDM Mac a profile can't install silently — macOS stages it and you approve
+ * it in System Settings → General → Device Management.
+ *
+ * By default each account becomes its OWN profile, so you can remove any single
+ * account later (System Settings → Device Management → select it → Remove)
+ * without touching the rest — at the cost of one approval click per account.
+ * `--bundle` puts every account in one profile instead: a single approval, but
+ * removal is all-or-nothing (removing the profile deletes every account in it).
+ *
+ * Either way, profile-managed accounts can't be deleted from Mail's own UI — the
+ * profile is the unit of removal. To change or drop an account, edit the .env and
+ * re-run; re-installing reconciles the matching profile(s) in place.
  *
  * The generated .mobileconfig contains plaintext passwords — treat it like the
  * .env: it rides your iCloud backup, never this public repo. Delete it after the
@@ -41,6 +51,7 @@
  *
  * iCloud Mail (@icloud.com / @me.com / @mac.com) is skipped: it comes with your
  * Apple ID (System Settings → Apple ID → iCloud → iCloud Mail), no profile needed.
+ * Set <PREFIX>_FORCE=true to include a secondary iCloud address that isn't your Apple ID.
  */
 import { createHash } from 'node:crypto'
 import { existsSync, readFileSync, writeFileSync } from 'node:fs'
@@ -123,9 +134,10 @@ interface Interactive {
 
 const truthy = (v: string | undefined) => !!v && ['1', 'true', 'yes', 'y', 'on'].includes(v.toLowerCase())
 
-function collectAccounts(env: Record<string, string>): { profile: Account[], interactive: Interactive[] } {
+function collectAccounts(env: Record<string, string>): { profile: Account[], interactive: Interactive[], skipped: string[] } {
   const profile: Account[] = []
   const interactive: Interactive[] = []
+  const skipped: string[] = []
 
   for (const key of Object.keys(env)) {
     const m = key.match(/^([A-Z0-9]+)_EMAIL$/)
@@ -135,6 +147,16 @@ function collectAccounts(env: Record<string, string>): { profile: Account[], int
     if (!email) continue
 
     const provider = providerFor(env, prefix, email)
+
+    // iCloud Mail comes with your Apple ID: once you're signed in (System
+    // Settings → Apple ID → iCloud → iCloud Mail) the account is already in
+    // Mail.app, so there's nothing to provision. Skip it — and never let a stale
+    // app-specific password here fail the whole (atomic) profile install. Set
+    // <PREFIX>_FORCE=true only for a secondary iCloud address that isn't your Apple ID.
+    if (provider === 'icloud' && !truthy(env[`${prefix}_FORCE`])) {
+      skipped.push(email)
+      continue
+    }
     // Gmail/iCloud app passwords are displayed in readable groups — Gmail with
     // spaces (`cqmm udvb …`), iCloud with dashes (`abcd-efgh-…`). Strip spaces so
     // the Gmail one works pasted either way; iCloud's dashes are part of it, kept.
@@ -173,7 +195,7 @@ function collectAccounts(env: Record<string, string>): { profile: Account[], int
       smtpPort: Number(env[`${prefix}_SMTP_PORT`] ?? preset?.smtpPort ?? 587),
     })
   }
-  return { profile, interactive }
+  return { profile, interactive, skipped }
 }
 
 const xml = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
@@ -208,17 +230,19 @@ function mailPayload(a: Account): string {
     </dict>`
 }
 
-function buildProfile(accounts: Account[]): string {
-  const uuid = stableUuid(PROFILE_ID + accounts.map(a => a.email).sort().join(','))
+function buildProfile(accounts: Account[], id: string, displayName: string): string {
+  // UUID keyed on the (stable) profile id, not the account set, so re-installing
+  // reconciles the matching profile in place rather than spawning a duplicate.
+  const uuid = stableUuid(id)
   return `<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
   <key>PayloadType</key><string>Configuration</string>
   <key>PayloadVersion</key><integer>1</integer>
-  <key>PayloadIdentifier</key><string>${PROFILE_ID}</string>
+  <key>PayloadIdentifier</key><string>${id}</string>
   <key>PayloadUUID</key><string>${uuid}</string>
-  <key>PayloadDisplayName</key><string>Mail Accounts (${accounts.length})</string>
+  <key>PayloadDisplayName</key><string>${xml(displayName)}</string>
   <key>PayloadDescription</key><string>IMAP/SMTP mail accounts generated from your dotfiles .env.</string>
   <key>PayloadOrganization</key><string>dotfiles</string>
   <key>PayloadScope</key><string>User</string>
@@ -235,6 +259,7 @@ ${accounts.map(mailPayload).join('\n')}
 // ── main ─────────────────────────────────────────────────────────────────────
 const args = process.argv.slice(2)
 const printOnly = args.includes('--print')
+const bundle = args.includes('--bundle')
 const envPath = args.find(a => !a.startsWith('--')) ?? process.env.MAIL_ENV ?? join(HOME, '.config/mail-accounts.env')
 
 if (!existsSync(envPath)) {
@@ -244,22 +269,46 @@ if (!existsSync(envPath)) {
 const INTERNET_ACCOUNTS = 'x-apple.systempreferences:com.apple.Internet-Accounts-Settings.extension'
 
 const env = parseEnv(readFileSync(envPath, 'utf8'))
-const { profile, interactive } = collectAccounts(env)
-if (profile.length === 0 && interactive.length === 0)
+const { profile, interactive, skipped } = collectAccounts(env)
+if (profile.length === 0 && interactive.length === 0 && skipped.length === 0)
   fail('No accounts found (need at least one <PREFIX>_EMAIL).')
 
-// 1. Pre-filled accounts → a configuration profile (servers + passwords).
+if (skipped.length > 0)
+  console.error(`ℹ Skipped iCloud (already in Mail via your Apple ID): ${skipped.join(', ')}`)
+
+// 1. Pre-filled accounts → configuration profile(s) with servers + passwords.
+//    Default: one profile per account, so any single account can be removed on
+//    its own in System Settings → Device Management. `--bundle` packs them into
+//    one profile instead (one approval click, but removal is all-or-nothing).
 if (profile.length > 0) {
-  const outPath = join(tmpdir(), 'mail-accounts.mobileconfig')
-  writeFileSync(outPath, buildProfile(profile), { mode: 0o600 })
-  console.error(`✓ Profile for ${profile.length} account(s): ${profile.map(a => a.email).join(', ')}`)
-  console.error(`  ${outPath}`)
+  const builds = bundle
+    ? [{
+        path: join(tmpdir(), 'mail-accounts.mobileconfig'),
+        content: buildProfile(profile, PROFILE_ID, `Mail Accounts (${profile.length})`),
+        label: profile.map(a => a.email).join(', '),
+      }]
+    : profile.map(a => ({
+        path: join(tmpdir(), `mail-${a.prefix.toLowerCase()}.mobileconfig`),
+        content: buildProfile([a], `${PROFILE_ID}.${a.prefix.toLowerCase()}.profile`, `Mail: ${a.email}`),
+        label: a.email,
+      }))
+
+  for (const b of builds) {
+    writeFileSync(b.path, b.content, { mode: 0o600 })
+    console.error(`✓ Profile — ${b.label}`)
+    console.error(`  ${b.path}`)
+  }
+
   if (printOnly) {
-    console.log(outPath)
+    for (const b of builds) console.log(b.path)
   }
   else {
-    spawnSync('open', [outPath], { stdio: 'ignore' })
-    console.error('  → approve it: System Settings → General → Device Management, then delete the file (it holds passwords).')
+    for (const b of builds) spawnSync('open', [b.path], { stdio: 'ignore' })
+    const many = builds.length > 1
+    console.error(`  → approve ${many ? 'each one' : 'it'}: System Settings → General → Device Management.`)
+    if (many)
+      console.error('    (if only one shows at a time, approve it then re-open the next path above with `open`)')
+    console.error(`  Then delete the file${many ? 's' : ''} — ${many ? 'they hold' : 'it holds'} plaintext passwords.`)
   }
 }
 
