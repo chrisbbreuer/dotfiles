@@ -11,6 +11,7 @@
 # Verify any package at registry.pantry.dev/binaries/<domain>/metadata.json or
 # https://pantry.dev/packages. Installs are idempotent.
 - code.visualstudio.com
+- codex.openai.com       # Codex desktop app (GUI; the `codex` CLI is openai.com/codex in deps.yaml)
 - diabrowser.com         # Dia (The Browser Company) — used instead of Arc
 - discord.com
 - ghostty.org            # terminal — point its shell at ~/.local/bin/den
