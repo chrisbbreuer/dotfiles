@@ -25,13 +25,14 @@ alias ptinker="php artisan tinker"
 alias pserve="php artisan serve"
 
 # PHP
-alias cfresh="rm -rf vendor/ composer.lock && composer i"
-alias composer="php -d memory_limit=-1 /opt/homebrew/bin/composer"
-alias switch-php84="brew unlink php@8.4 && brew link --overwrite --force php@8.4"
-alias switch-php83="brew unlink php@8.3 && brew link --overwrite --force php@8.3"
-alias switch-php82="brew unlink php@8.2 && brew link --overwrite --force php@8.2"
-alias switch-php81="brew unlink php@8.1 && brew link --overwrite --force php@8.1"
-alias switch-php80="brew unlink php@8.0 && brew link --overwrite --force php@8.0"
+alias cfresh="rm -rf vendor/ composer.lock && composer install"
+# Run whichever composer is on PATH — the pantry project env's (or global) — NOT a
+# hardcoded Homebrew path. `command` skips this alias to reach the real binary;
+# COMPOSER_MEMORY_LIMIT=-1 lifts composer's memory cap (replaces `php -d memory_limit=-1`).
+alias composer='COMPOSER_MEMORY_LIMIT=-1 command composer'
+# PHP versions are managed per-project by pantry (the `php:` pin in each project's
+# deps.yaml), not globally via Homebrew — `cd` into a project to get its PHP. The
+# old `switch-phpXX` brew aliases were removed; they don't apply to a pantry setup.
 
 # JS
 alias bi="bun i"
