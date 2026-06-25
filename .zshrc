@@ -31,7 +31,13 @@ command -v pantry >/dev/null && eval "$(pantry dev:shellcode)"
 setopt PROMPT_SUBST
 PROMPT='%F{cyan}%~%f %F{green}$(git branch --show-current 2>/dev/null)%f ❯ '
 
-# --- Den (opt-in) ---
-# To launch Den automatically for interactive zsh sessions, uncomment below — or,
-# preferably, point your terminal app's "command" setting directly at `den`.
+# --- Den is the login shell ---
+# Den is set as the login shell via chsh (fresh.sh does this; manually it's
+# `echo ~/.local/bin/den | sudo tee -a /etc/shells && chsh -s ~/.local/bin/den`),
+# so you normally never see this file. It stays as a safety net: if Den ever
+# misbehaves or a tool needs a POSIX/zsh shell, plain `zsh` still works with a
+# sane prompt and the same env/aliases. To recover, set Terminal → Settings →
+# General → "Shells open with" to /bin/zsh, or `chsh -s /bin/zsh`.
+#
+# To instead hand off from an interactive zsh to Den on the fly, uncomment:
 # [[ $- == *i* && -z "$DEN_ACTIVE" ]] && command -v den >/dev/null && DEN_ACTIVE=1 exec den
