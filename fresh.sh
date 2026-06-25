@@ -111,23 +111,24 @@ fi
 #    ssh.sh has already put your key on GitHub, so SSH just works. Den's build is
 #    non-fatal: if Zig isn't new enough yet, keep going so the secrets/.env/SSH
 #    recovery below still runs — you can rebuild Den later with `bun run den`.
-if [ ! -d "$CODE/den" ]; then
+if [ ! -d "$CODE/Tools/den" ]; then
   echo "==> Cloning Den (SSH)..."
-  git clone git@github.com:home-lang/den.git "$CODE/den" \
+  mkdir -p "$CODE/Tools"
+  git clone git@github.com:home-lang/den.git "$CODE/Tools/den" \
     || echo "    ! could not clone Den — check 'ssh -T git@github.com'. Skipping Den build."
 fi
-if [ -d "$CODE/den" ]; then
+if [ -d "$CODE/Tools/den" ]; then
   echo "==> Building Den..."
-  ( cd "$CODE/den" && zig build -Doptimize=ReleaseFast ) || true
+  ( cd "$CODE/Tools/den" && zig build -Doptimize=ReleaseFast ) || true
   # Symlink the den binary if the build produced it. Den ships example targets
   # that may lag the pinned Zig; the shell binary itself builds first, so a
   # failed example shouldn't stop us linking a working `den`.
-  if [ -x "$CODE/den/zig-out/bin/den" ]; then
-    ln -sf "$CODE/den/zig-out/bin/den" "$HOME/.local/bin/den"
+  if [ -x "$CODE/Tools/den/zig-out/bin/den" ]; then
+    ln -sf "$CODE/Tools/den/zig-out/bin/den" "$HOME/.local/bin/den"
     echo "    ✓ den -> $HOME/.local/bin/den"
   else
     echo "    ! Den build did not produce a binary (often a Zig version mismatch). Continuing." >&2
-    echo "      Check the ziglang.org pin in deps.yaml, then: cd ~/Code/den && zig build -Doptimize=ReleaseFast" >&2
+    echo "      Check the ziglang.org pin in deps.yaml, then: cd ~/Code/Tools/den && zig build -Doptimize=ReleaseFast" >&2
   fi
 fi
 
@@ -135,6 +136,18 @@ fi
 ln -sf "$DOTFILES/.denrc" "$HOME/.denrc"                          # Den shell startup
 ln -sf "$DOTFILES/.config/den.jsonc" "$HOME/.config/den.jsonc"    # Den declarative config
 rm -f "$HOME/.zshrc"; ln -sf "$DOTFILES/.zshrc" "$HOME/.zshrc"    # zsh fallback
+
+# 5b. Make Den the login shell — the primary daily-driver shell. Registers the
+#     binary in /etc/shells (needs sudo) then chsh's to it; both are idempotent.
+#     Recovery if Den ever misbehaves: Terminal → Settings → "Shells open with"
+#     → /bin/zsh, or `chsh -s /bin/zsh`. The zsh fallback above keeps working.
+DEN_BIN="$HOME/.local/bin/den"
+if [ -x "$DEN_BIN" ]; then
+  grep -qxF "$DEN_BIN" /etc/shells 2>/dev/null || echo "$DEN_BIN" | sudo tee -a /etc/shells >/dev/null
+  if [ "$(dscl . -read "/Users/$USER" UserShell 2>/dev/null | awk '{print $2}')" != "$DEN_BIN" ]; then
+    chsh -s "$DEN_BIN" && echo "    ✓ login shell set to Den"
+  fi
+fi
 ln -sf "$DOTFILES/.gitignore_global" "$HOME/.gitignore_global"    # global gitignore
 git config --global core.excludesfile "$HOME/.gitignore_global"  # (user/email come from recovery)
 
@@ -185,6 +198,7 @@ All done! Next steps:
         cd ~/.dotfiles && bun run recover   # also sets up mail
   - Keep your off-machine copy fresh before the NEXT wipe with:
         cd ~/.dotfiles && bun run prewipe      # = backup (secrets) + rescue (git work)
-  - To make Den your login shell, see the opt-in note at the bottom of .zshrc,
-    or run:  echo "$HOME/.local/bin/den" | sudo tee -a /etc/shells && chsh -s "$HOME/.local/bin/den"
+  - Den is now your login shell (step 5b chsh'd to it). Open a new terminal to
+    land in Den. Recovery if needed: Terminal → Settings → "Shells open with"
+    → /bin/zsh, or `chsh -s /bin/zsh` — the zsh fallback config still works.
 EOF
