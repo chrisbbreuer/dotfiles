@@ -574,6 +574,31 @@ defaults write com.apple.mail DisableInlineAttachmentViewing -bool true
 # defaults write com.apple.mail SpellCheckingBehavior -string "NoSpellCheckingEnabled"
 
 ###############################################################################
+# Raycast — take over ⌘Space from Spotlight                                   #
+###############################################################################
+
+# Free up ⌘Space by disabling Spotlight's "Show Spotlight search" shortcut
+# (symbolic hotkey 64) so Raycast can own it. Hotkey 65 — the ⌥⌘Space Finder
+# search window — is intentionally left alone. 32/49 are the ASCII space / Space
+# keycode and 1048576 is the ⌘ modifier mask, matching macOS's default binding.
+defaults write com.apple.symbolichotkeys AppleSymbolicHotKeys -dict-add 64 "
+  <dict><key>enabled</key><false/>
+    <key>value</key><dict>
+      <key>type</key><string>standard</string>
+      <key>parameters</key><array>
+        <integer>32</integer><integer>49</integer><integer>1048576</integer>
+      </array></dict></dict>"
+
+# Point Raycast's global hotkey at ⌘Space (49 is the Space keycode). Applied the
+# next time Raycast launches; on a brand-new Mac Raycast's first-run wizard also
+# offers to disable Spotlight and grab ⌘Space, so this just makes it automatic.
+defaults write com.raycast.macos raycastGlobalHotkey "Command-49"
+
+# Reload the symbolic-hotkey settings so the Spotlight change sticks without a
+# full logout (still flagged below for anything that needs a restart).
+/System/Library/PrivateFrameworks/SystemAdministration.framework/Resources/activateSettings -u 2>/dev/null || true
+
+###############################################################################
 # Spotlight                                                                   #
 ###############################################################################
 
