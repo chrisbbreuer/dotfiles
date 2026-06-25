@@ -13,8 +13,11 @@
   // Prompt — replaces starship.toml.
   // Placeholders: {path} {git} {symbol} {modules} {exitcode} {time}
   //               and per-language {bun} {node} {zig} {python} {ruby} {go} {rust}
+  // Two lines: bold bright-cyan path + git + runtime versions, then the prompt
+  // symbol on its own line. \u001b[..m are ANSI colors; {symbol} renders
+  // theme.symbols.prompt ("❯") green on success / red after a failed command.
   "prompt": {
-    "format": "{path}{git} {modules}\n{symbol} ",
+    "format": "\u001b[1;96m{path}\u001b[0m{git} {modules}\n{symbol}",
     "show_git": true,
     "show_path": true,
     "show_exit_code": true,
