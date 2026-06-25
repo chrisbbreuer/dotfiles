@@ -15,6 +15,11 @@ alias dotfiles="code $DOTFILES"
 alias library="cd $HOME/Library"
 alias web="cd $HOME/Code"
 
+# Up-navigation is built into Den — no aliases needed:
+#   - a bare directory path auto-cds (e.g. `../test` with no `cd`)
+#   - multi-dot shorthand expands `...` -> ../.. , `....` -> ../../.. , and
+#     `.../foo` -> ../../foo (works bare or after `cd`).
+
 # Laravel
 alias pfresh="php artisan migrate:fresh --seed"
 alias sfresh="sail artisan migrate:fresh --seed"
