@@ -64,6 +64,17 @@ if [ -x "/Applications/Zed.app/Contents/MacOS/cli" ]; then
   echo "    ✓ zed -> $HOME/.local/bin/zed"
 fi
 
+# gh lives in Pantry's global bin, which is only on PATH once env.sh is sourced
+# (interactive shells). But git's github.com credential helper is `!gh auth
+# git-credential` — git runs it in a bare subprocess that does NOT source env.sh,
+# so `gh` is off PATH there and every HTTPS push/pull fails to authenticate.
+# Symlink gh into ~/.local/bin (always on PATH, like zed/den/claude) so the
+# credential helper resolves it in any context. Idempotent; no-op if gh absent.
+if [ -x "$HOME/.local/share/pantry/global/bin/gh" ]; then
+  ln -sf "$HOME/.local/share/pantry/global/bin/gh" "$HOME/.local/bin/gh"
+  echo "    ✓ gh -> $HOME/.local/bin/gh"
+fi
+
 # Ensure a Den-capable Zig. Den needs the exact 0.17-dev build pinned in
 # deps.yaml. Older Pantry releases resolve versions from a baked-in snapshot that
 # predates that build and silently install an older dev build that can't compile
