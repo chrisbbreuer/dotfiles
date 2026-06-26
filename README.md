@@ -123,9 +123,15 @@ of truth — no duplicated `$PATH` or alias lists between Den and zsh.
 > own registry** (`registry.pantry.dev`) — each is a Pantry package keyed by
 > domain (e.g. `ghostty.org`), downloaded and installed directly. **No Homebrew,
 > no `brew`, nothing third-party.** **Mac App Store** apps (the `mas:` entries)
-> need no extra tooling either — Pantry has built-in App Store support (the role
-> [`mas`](https://github.com/mas-cli/mas) plays elsewhere): it skips any app
-> already installed and opens the App Store to the rest for a one-click install.
+> need no extra tooling either — Pantry installs them **silently and natively**
+> via Apple's CommerceKit (the role [`mas`](https://github.com/mas-cli/mas) plays
+> elsewhere, but with no `mas` binary and no App Store window): it skips any app
+> already in `/Applications`, and for the rest drives the same download the App
+> Store would, then installs the package with `/usr/sbin/installer`. That last
+> step needs root, so `fresh.sh` primes `sudo` first; if you're signed into the
+> App Store and approve sudo, the apps just appear. Anything it can't install
+> silently (not signed in, or a paid app you don't own) falls back to opening the
+> App Store.
 
 ### 3. Start using Den
 

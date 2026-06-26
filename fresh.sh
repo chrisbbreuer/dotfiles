@@ -42,6 +42,20 @@ export PATH="$HOME/.local/bin:$HOME/.local/share/pantry/global/bin:$HOME/.local/
 #    `--user` flag honours `global: true` in deps.yaml and installs them into the
 #    canonical user dir (~/.local/share/pantry/global/bin) that env.sh adds to
 #    PATH. That's the install that matters, so run it first.
+# Mac App Store apps (apps.yaml `mas:` entries) install natively & SILENTLY via
+# Pantry/CommerceKit — no `mas`, no App Store window popping up. The only part
+# that needs root is the final `/usr/sbin/installer` step, so prime sudo now and
+# keep the timestamp warm through the long install runs below. If you decline (or
+# aren't an admin) Pantry just falls back to opening the App Store for those apps.
+echo "==> Priming sudo for silent Mac App Store installs..."
+if sudo -v 2>/dev/null; then
+  ( while kill -0 "$$" 2>/dev/null; do sudo -n true 2>/dev/null; sleep 50; done ) &
+  _SUDO_KEEPALIVE=$!
+  trap 'kill "$_SUDO_KEEPALIVE" 2>/dev/null || true' EXIT
+else
+  echo "    (no sudo — Mac App Store apps will open in the App Store instead of installing silently)"
+fi
+
 echo "==> Installing CLI tools via Pantry (user-global, onto PATH)..."
 ( cd "$DOTFILES" && pantry install --user ) \
   || echo "    WARNING: 'pantry install --user' reported errors. Most tools should still be installed — continuing."
@@ -50,8 +64,9 @@ echo "==> Installing CLI tools via Pantry (user-global, onto PATH)..."
 # the --user run above; older releases only wire them up through the project
 # path, so run a bare install too. Any CLI shims it writes go to the gitignored
 # ./pantry and are harmless — the user-global copies above are what's on PATH.
-# Mac App Store apps open in the App Store for a one-click install; already
-# installed apps/fonts are skipped, so this is safe to re-run.
+# Mac App Store apps install natively & silently (CommerceKit — no `mas`, no
+# window) thanks to the primed sudo above; already installed apps/fonts are
+# skipped, so this is safe to re-run.
 echo "==> Installing GUI apps & fonts via Pantry..."
 ( cd "$DOTFILES" && pantry install ) \
   || echo "    (some apps/fonts could not be installed — review the output above)"
@@ -200,7 +215,8 @@ cat <<'EOF'
 All done! Next steps:
   - Open a new terminal and run `den` (or point your terminal app at ~/.local/bin/den).
   - GUI apps & fonts come from apps.yaml / fonts.yaml (installed natively by
-    'pantry install' above; Mac App Store apps open in the App Store to install).
+    'pantry install' above; Mac App Store apps install silently via CommerceKit —
+    no App Store window — as long as you're signed in and approved sudo).
   - Mail: recovery set up your accounts. Approve the staged profile (System
     Settings → General → Device Management) and sign into Gmail/iCloud in the
     Internet Accounts window it opened. (Re-run anytime: `bun run mail`.)

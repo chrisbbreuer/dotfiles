@@ -6,7 +6,8 @@
 # Entries are one of:
 #   - <domain>                        a Pantry app package, e.g. `ghostty.org`
 #                                     (NOT a Homebrew cask slug like `ghostty`)
-#   - { mas: "<id>", name: <App> }    Mac App Store app by id (opens the App Store)
+#   - { mas: "<id>", name: <App> }    Mac App Store app by id (installed silently
+#                                     via CommerceKit — no `mas`, no App Store window)
 #
 # Verify any package at registry.pantry.dev/binaries/<domain>/metadata.json or
 # https://pantry.dev/packages. Installs are idempotent.
@@ -32,7 +33,8 @@
 - vlc.app
 - zed.dev                # primary editor — set as $EDITOR/$VISUAL in env.sh
 
-# Mac App Store apps — installed via the App Store (need it signed in):
+# Mac App Store apps — installed silently & natively (need to be signed into the
+# App Store; the install step uses sudo, which fresh.sh primes for you):
 - { mas: "1402042596", name: AdBlock }
 - { mas: "1462114288", name: Grammarly for Safari }
 - { mas: "1472777122", name: Honey }
